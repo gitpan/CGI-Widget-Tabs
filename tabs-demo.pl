@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
-#!/usr/bin/speedy
 
-# $Id: tabs-demo.pl,v 1.19 2003/01/26 17:31:47 koos Exp $
+#!/usr/bin/speedy -w
+
+# $Id: tabs-demo.pl,v 1.20 2003/04/25 20:28:12 koos Exp $
 
 use strict;
-
 use CGI::Widget::Tabs;
 use CGI::Widget::Tabs::Style;
 
@@ -12,7 +12,7 @@ my @styles = css_styles();  # imported cosmetics
 my $cgi = create_cgi_object();
 exit if ! defined $cgi;
 
-my $current_style = $cgi->param("style") || 1;  # the (currently) selected style sheet
+my $current_style = $cgi->param("style") || 1;  # the currently selected style sheet
 print <<EOT;
 Content-Type: text/html;
 
@@ -20,52 +20,52 @@ Content-Type: text/html;
 <title>CGI::Widget::Tabs - Demo</title>
 <style type="text/css">
 EOT
-print $styles[ $current_style - 1 ]->{style};
+print $styles[ $current_style - 1 ]->{style}; # humans start with 1, lists at 0
 print <<EOT;
+.ferrari {font-weight: bold; background-color:#F21E1E}
 </style>
 </head>
 <body>
-<h1>F1 - Team Simulation - 2003</h1>
+<h1>F1 - Team Simulation - 2002</h1>
 EOT
 
 my $main_tab = CGI::Widget::Tabs->new;  # first set up the main tab
 $main_tab->cgi_object($cgi);            # access to the outside world
 $main_tab->cgi_param("t");              # |comment this line out to see it will
                                         # |use the default value "tab"
-$main_tab->headings( "Drivers", "Courses", "Cars", "Style sheets" ); # |The headings list is a plain list.
-                                                 # |This means the actual words
-                                                 # |are used in the URL.
+$main_tab->headings( "Drivers",         # >The headings list is a plain list.
+                     "Courses",         # >This means the actual words
+                     "Cars",            # >are used in the URL.
+                     "Style sheets" );
+
+
 $main_tab->class("my_tab");  # CSS base style to use
 
 print "<p>This is the main tab</p>\n";
 $main_tab->display;  # paint the tab
 
-print "<br>";  # I could probably take a CSS bottom margin too.
+print "<br>";  # I could probably use a CSS bottom margin too.
 
 # --- Predefine the possible details tabs.
-# --- Notice how the details tabs are a mix of simple headings and
-# --- OO headings. Various configuration methods are used to illustate
-# --- possible uses.
-# ---
+# --- Various configuration methods are used to illustate how to
+# --- initialize headings.
 # ---
 # --- Usually multiple tabs can be configured much cleaner and more efficient.
 # --- For instance a hash containing a complete menu structure plus options
 # --- can be made in a flash. The reason things look a bit chaotic,
 # --- it is to allow all options being demonstrated.
 
-
 # Set up the details tab. The first few methods are common methods:
 my $details = CGI::Widget::Tabs->new;
 $details->cgi_object($cgi); # access to the outside world
 $details->class("my_tab");  # we'll use the same style sheet as the main tab
-
 
 # --- Differentiate based on the active heading from the main tab
 
 HEADINGS: {
     # --- "Courses" tab
     ( $main_tab->active eq "Courses" ) && do {
-        # - This tab uses simple headings:
+        # This tab uses a list of strings:
         $details->headings( "Monte Carlo", "Silverstone", "Nurburgring", "Monza" );
         $details->cgi_param("dt");  # _details _tracks
         last HEADINGS;
@@ -73,7 +73,7 @@ HEADINGS: {
 
     # --- "Drivers" tab
     ( $main_tab->active eq "Drivers" ) && do {
-        # - This tab uses simple headings too, but k/v pairs:
+        # This tab uses k/v pairs:
         $details->headings( -jpm => "J.P. Montoya",
                             -rs  => "R. Shumacher",
                             -ms  => "M. Shumacher",
@@ -87,21 +87,22 @@ HEADINGS: {
 
     # --- "Cars" tab
     ( $main_tab->active eq "Cars" ) && do {
-        # - This tab goes for the OO approach
+        # This tab goes for the OO approach
         my $h;
 
-        $h = $details->heading;   # add a heading
+        $h = $details->heading(); # add a heading
         $h->text("Ferrari");      # text to display
+        $h->class("ferrari");     # these guys have their own wishes
 
-        $h = $details->heading;   # add another heading
+        $h = $details->heading(); # add another heading
         $h->text("McLaren&nbsp;Mercedes");
         $h->raw(1);               # do not encode. pass as is.
 
-        $h = $details->heading;   # add another heading
+        $h = $details->heading(); # add another heading
         $h->text("BMW Williams"); # text to display...
         $h->key("bmw");           # ...but key to use
 
-        $h = $details->heading;   # add another heading
+        $h = $details->heading(); # add another heading
         $h->text("Chrysler");     # |we don't have F1 records on Chrysler
                                   # |redirect to Chrysler homepage instead.
         $h->url("http://www.chrysler.com");

@@ -1,3 +1,24 @@
+1.07  (2003-04-27)
+------------------
+    - Removed the distinction between simple headings and OO headings.
+      Simple headings are now (as they should be) just a variation of
+      OO headings. This greatly simplifies programming logic. One
+      consequence is that the headings() method now only returns OO
+      headings. (Thanks to Bernhard Schmalhofer
+      <Bernhard.Schmalhofer@biomax.de> for suggestions and patches.)
+
+    - Added a hash as optional initializer for the headings() method.
+      (Thanks to Bernhard Schmalhofer <Bernhard.Schmalhofer@biomax.de>
+      for suggestions and patches.)
+
+    - Headings can now override the default CSS class using the
+      class() method. (Suggested by Bernie Ledwick
+      <bl@man.fwltech.com>)
+
+    - Documentation updates
+
+
+
 1.06.01 (2003-01-26)
 --------------------
 This is a maintenance release.
@@ -102,9 +123,9 @@ This is a maintenance release.
       parameter directly through the CGI object in stead of
       through the CGI::Tabs object. The missing '-' would be a
       fall over. If you are not accessing the tabs parameter
-      outside the CGI::Tabs object, you are not affected. - The
-      space between tabs now has it's own CSS class - demo.pl has
-      been renamed to tabs-demo.pl to avoid future conflicts.
+      outside the CGI::Tabs object, you are not affected.
+    - The space between tabs now has it's own CSS class
+    - demo.pl has been renamed to tabs-demo.pl to avoid future conflicts.
 
 
 

@@ -5,22 +5,21 @@ CGI::Widget::Tabs
 
 DESCRIPTION
 
-CGI::Widget::Tabs lets you simulate tab widgets in HTML. You
-could benefit from a tab widget if you want to serve only one
-page. Depending on the tab selected you fetch and display the
-underlying data. There are two main reasons for taking this
-approach:
+CGI::Widget::Tabs lets you simulate tab widgets in HTML. You could
+benefit from a tab widget if you want to serve only one page. Depending
+on the tab selected you fetch and display the underlying data. There
+are three main reasons for taking this approach:
 
-1. For the end user not to be directed to YAL or YAP (yet another
-link / yet another page), but keep it all together: The single
-point of entry paradigm.
+1. For the end user not to be directed to YAL or YAP (yet another link,
+yet another page), but keep it all together: The single point of entry
+paradigm.
 
 2. As a consequence the end user deals with a more consistent and
-integrated GUI. This will give a better "situational awareness"
-within the application.
+integrated GUI. This will give a better "situational awareness" within
+the application.
 
-3. For the Perl hacker to handle multiple related data sources
-within the same script environment.
+3. For the Perl hacker to handle multiple related data sources within
+the same script environment.
 
 As an example the following tabs could be used on a web page for
 someone's spotting hobby:
@@ -32,20 +31,20 @@ someone's spotting hobby:
         /  Bikes  \
 ------------------------
 
-As you can see, the headings wrap at three and a small
-indentation is added to the start of the next row. The nice thing
-about CGI::Widget::Tabs is that the tabs know their internal
-state. So you can ask a tab for instance which heading has been
-clicked by the user. This way you get instant feedback.
+As you can see, the headings wrap at three and a small indentation is
+added to the start of the next row. The nice thing about
+CGI::Widget::Tabs is that the tabs know their internal state. So you
+can ask a tab for instance which heading has been clicked by the user.
+This way you get instant feedback.
+
 
 
 
 DOCUMENTATION
 
-The documentation is included in the module. You can read it's
-manpage after installation with `perldoc CGI::Widget::Tabs'. If
-you prefer you can read the documentation before installation
-with `perldoc ./Tabs.pm'
+The documentation is included in the module. You can read it's manpage
+after installation with `perldoc CGI::Widget::Tabs'. If you prefer you
+can read the documentation before installation with `perldoc ./Tabs.pm'
 
 
 
@@ -72,10 +71,9 @@ make install
 
 DOWNLOAD
 
-You can download CGI::Widget::Tabs from CPAN at
-http://cpan.perl.org. The latest version is always available from
-the CGI::Widget::Tabs homepage at:
-http://users.raketnet.nl/koos_pol/en/Tabs/index.html
+You can download CGI::Widget::Tabs from CPAN at http://cpan.perl.org.
+The latest version is always available from the CGI::Widget::Tabs
+homepage at: http://users.raketnet.nl/koos_pol/en/Tabs/index.html
 
 
 
@@ -83,21 +81,33 @@ COPYRIGHT AND LICENCE
 
 Copyright (c) 2003 Koos Pol. All rights reserved.
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 
 
 CHANGES
 
-These changes are against the previous version.  For a complete
-history log, see the file 'CHANGES' in the distribution.
+These changes are against the previous version.  For a complete history
+log, see the file 'CHANGES' in the distribution.
 
-1.06.01 (2003-01-26)
---------------------
-This is a maintenance release.
-    - Fixed: forgot the replace my private "require" with "use"
-    - Some code rearrangements.
+1.07  (2003-04-27)
+------------------
+    - Removed the distinction between simple headings and OO headings.
+      Simple headings are now (as they should be) just a variation of
+      OO headings. This greatly simplifies programming logic. One
+      consequence is that the headings() method now only returns OO
+      headings. (Thanks to Bernhard Schmalhofer
+      <Bernhard.Schmalhofer@biomax.de> for suggestions and patches.)
 
+    - Added a hash as optional initializer for the headings() method.
+      (Thanks to Bernhard Schmalhofer <Bernhard.Schmalhofer@biomax.de>
+      for suggestions and patches.)
 
-$Id: README,v 1.18 2003/01/26 17:31:47 koos Exp $
+    - Headings can now override the default CSS class using the
+      class() method. (Suggested by Bernie Ledwick
+      <bl@man.fwltech.com>)
+
+    - Documentation updates
+
+$Id: README,v 1.20 2003/04/27 07:49:00 koos Exp $

@@ -1,4 +1,4 @@
-# $Id: Tabs.pm,v 1.29 2003/01/26 17:30:51 koos Exp $
+# $Id: Tabs.pm,v 1.36 2003/04/27 07:49:00 koos Exp $
 
 package CGI::Widget::Tabs;
 
@@ -10,7 +10,7 @@ use HTML::Entities();
 
 use vars qw/$VERSION/;
 
-$VERSION = '1.06.01';
+$VERSION = "1.07";
 
 
 
@@ -30,13 +30,49 @@ sub new {
 # ----------------------------------------------
 sub headings {
 # ----------------------------------------------
-    #
-    #  1. ( "Software", "Hardware, ...)
-    #  2. ( -sw => "Software", -hw => "Hardware", ... )
+    #  Takes optional user defined simple headings as arguments,
+    #  which  will be transformed into OO headings. E.g.:
+    #  ( "Software", -hw => "Hardware", { text => "Wetware", key => "ww" } )
     #
     my $self = shift;
-    if ( @_ ) {
-        $self->{headings} = [ @_ ];
+    if ( @_ ) {  # any arguments?
+
+        my $h;   # OO heading
+        my $ht;  # _heading _text
+
+        HEADING: while ( my $arg = shift @_ ) {
+            $h = $self->heading();  # add a new heading
+
+            if ( ! ref $arg ) {  # Not a hash initializer
+                # -- k/v pair
+                ( $arg =~ /^-/ ) && do {
+                    $h->key($arg);
+                    $h->text(shift @_);
+                    next HEADING;
+                };
+
+                # -- text only
+                $h->text($arg);
+                next HEADING;
+            }
+
+            # -- hash initializer
+            ( ref($arg) eq "HASH" ) && do {
+                if ( ! $arg->{text} ) {
+                    croak "Hash initializer is missing mandatory text element";
+                }
+
+                $h->text($arg->{text});
+                if ( exists( $arg->{key} )   && $arg->{key} )   { $h->key( $arg->{key} ) }
+                if ( exists( $arg->{url} )   && $arg->{url} )   { $h->url(  $arg->{url} ) }
+                if ( exists( $arg->{raw} )   && $arg->{raw} )   { $h->raw(  $arg->{raw} ) }
+                if ( exists( $arg->{class} ) && $arg->{class} ) { $h->class(  $arg->{class} ) }
+                next HEADING;
+            };
+
+            croak "Unsupported heading type";
+            next;
+        }
     }
     return @{ $self->{headings} || [] };
 }
@@ -50,9 +86,9 @@ sub heading {
     # Create, add, and return a new heading object
     #
     my $self = shift;
-    my $heading = CGI::Widget::Tabs::Heading->new;
-    push @{ $self->{headings} }, $heading;
-    return $heading;
+    my $h = CGI::Widget::Tabs::Heading->new();
+    push @{ $self->{headings} }, $h;
+    return $h;
 }
 
 
@@ -83,8 +119,7 @@ sub cgi_object {
     my $cgi = shift;
     if ( $cgi ) {
         if ( ref $cgi ne "CGI" and ref $cgi ne "CGI::Minimal") {
-            my $pkg = __PACKAGE__;
-            croak "[$pkg] Warning: Expected CGI or CGI::Minimal object.\n";
+            carp "Warning: Expected CGI or CGI::Minimal object";
         }
         $self->{cgi_object} = $cgi;
     }
@@ -103,7 +138,7 @@ sub cgi_param {
     if ( @_ ) {
         $self->{cgi_param} = shift;
     }
-    return $self->{cgi_param}||'tab';
+    return $self->{cgi_param} || "tab";
 }
 
 
@@ -112,30 +147,25 @@ sub cgi_param {
 sub active {
 # ----------------------------------------------
     #
-    # The active heading:
-    # In order of precendence:
+    # Returns the active heading. In order of precendence:
     # 1. The heading clicked by the user
     # 2. The default heading
     # 3. The first heading in the list
     #
     my $self = shift;
+    my $active;
 
     # 1. Heading clicked
-    my $clicked = $self->cgi_object->param($self->cgi_param);
-    return $clicked if defined $clicked;  # that was easy :-)
+    $active = $self->cgi_object->param($self->cgi_param);
+    return $active if defined $active;
 
-    # -- Plain or k/v list
-    # 2./3. Default or first
-    if ( !ref ( ($self->headings)[0] ) ) {
-        return $self->default || ($self->headings)[0];
-    }
-
-    # -- List of OO headings
     # 2. Default
-    return $self->default if defined $self->default;  # that was again very easy
+    $active = $self->default;
+    return $active if defined $active;
+
     # 3. First
-    my $first_heading = ($self->headings)[0];
-    return $first_heading->key || $first_heading->text;
+    my $h = ($self->headings)[0];  # headings are always OO objects
+    return $h->key || $h->text;
 }
 
 
@@ -151,7 +181,7 @@ sub class {
     if ( @_ ) {
         $self->{class} = shift;
     }
-    return $self->{class} || 'tab';
+    return $self->{class} || "tab";
 }
 
 
@@ -208,22 +238,22 @@ sub render {
     #
     my $self        = shift;
     my $cgi         = $self->cgi_object;
-    my @headings    = $self->headings; # plain list, k/v list or object list
+    my @headings    = $self->headings;
     my $class       = $self->class;
     my $cgi_param   = $self->cgi_param;
     my $active      = $self->active;
     my $wrap        = $self->wrap;
     my $indent      = $self->indent;
-    my $spacer      = '<td class="'.$class.'_spc"><img height="1" width="1"></td>';  # dummy image
-    my $indentation = '<td class="'.$class.'_ind"><img height="1" width="1"></td>'."\n";  # dummy image
+    my $spacer      = qq(<td class="$class).qq(_spc"></td>);
+    my $indentation = qq(<td class="$class).qq(_ind"></td>);
     my @html;
     my $url;
     my $query_string_min_min;  # the query string minus the varying tab
 
     # - reproduce the CGI query string EXCEPT the varying tab
-    my @param_list = grep( $_ ne $cgi_param,$cgi->param() );
+    my @param_list = grep( $_ ne $cgi_param, $cgi->param() );
     if ( @param_list ) {
-        $query_string_min_min = join "&", map ( "$_=".URI::Escape::uri_escape($cgi->param($_)||"") ,  @param_list );
+        $query_string_min_min = join "&", map ( "$_=".URI::Escape::uri_escape($cgi->param($_)||"") , @param_list );
         $query_string_min_min .= "&";
     } else {
         $query_string_min_min = "";
@@ -231,143 +261,58 @@ sub render {
 
 
     if ( @headings ) {
-
         @html = ();
         push @html, "<!-- Generated by CGI::Widget::Tabs v$VERSION -->\n";
 
-        # --- OO headings
-        if ( ref($headings[0] ) ) {
-            my $heading_nr = 1;  # first heading
-            my $row_nr     = 1;  # first row
-            my $param_value;
+        my $heading_nr = 1;  # we're about to render the first heading...
+        my $row_nr     = 1;  # ...of the first row
+        my $param_value;
+        my $h;
+        my $url;
 
-            foreach my $heading ( @headings ) {
-                if ( $heading_nr == 1 ) {   # first one in the row?
-                    push @html, _start_of_row($class, $spacer, $indent, $row_nr, $indentation);
-                }
-
-                # -- actual headings
-                $param_value = $heading->key || $heading->text;
-                push @html, '<td class="',$class;
-                push @html, '_actv' if $param_value eq $active;
-                push @html, '">';
-                # cooked default URL or default self ref.
-                my $url = $heading->url || ( "?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($param_value) );
-                push @html, _link( $heading->text , $url );
-                push @html, "</td>";
-                push @html, $spacer,"\n";
-                # -- end of row
-                if ( $wrap && ( $heading_nr == $wrap ) ) {  # last one on the line?
-                    push @html,  "</tr>\n";     # | yes, end this row
-                    push @html,  "</table>\n";  # |
-                    $heading_nr = 0;
-                    $row_nr++;
-                }
-                $heading_nr++;
+        foreach $h ( @headings ) {
+            if ( $heading_nr == 1 ) {   # first one in the row?
+                push @html, qq(<table class="$class">\n<tr>\n);
+                if ( $indent && $row_nr > 1 ) {                     # = print indents if
+                    push @html, ( $indentation x ($row_nr - 1));    # = necessary
+                }                                                   # =
+                push @html, "$spacer\n";  # each row starts with a spacer
             }
 
-            # --- all headings printed
-            if ( $heading_nr != 1 )  {     # | Did we just get wrapped to
-                push @html, "</tr>\n";     # | the next line? In that case
-                push @html, "</table>\n";  # | we don't need an end-of-row.
+            # -- actual headings
+            $param_value = $h->key || $h->text;
+            if ( defined $h->class() ) {  # heading has local class?
+                push @html, qq(<td class=").$h->class.'">';
+            } else {
+                push @html, qq(<td class="$class);
+                push @html, qq(_actv) if $param_value eq $active;
+                push @html, qq(">);
             }
+
+            # -- user defined URL or default self ref. URL?
+            my $url = $h->url || ( "?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($param_value) );
+            push @html, _link( $h->text , $url );
+            push @html, "</td>$spacer\n";
+
+            # -- end of row
+            if ( $wrap && ( $heading_nr == $wrap ) ) {  # last one on this row?
+                push @html, "</tr>\n";     # | yes, end this row
+                push @html, "</table>\n";  # |
+                $heading_nr = 0;
+                $row_nr++;
+            }
+            $heading_nr++;
         }
 
-        # --- simple list headings
-        else {  # the first element is a scalar -> ("Heading") or ( -h => "Heading" );
-            # --- Did we get the -h => "Heading" version?
-            if ( substr($headings[0],0,1) eq '-' ) {
-                my $heading_nr = 1;  # first heading
-                my $row_nr     = 1;  # first row
-                my $heading_key;
-                my $heading_text;
-                while ( @headings ) {
-
-                    if ( $heading_nr == 1 ) {   # first one in the row?
-                        push @html, _start_of_row($class, $spacer, $indent, $row_nr, $indentation);
-                    }
-
-                    # -- actual headings
-                    $heading_key  = shift @headings;
-                    $heading_text = shift @headings;
-                    push @html, '<td class="',$class;
-                    push @html, '_actv' if $heading_key eq $active;
-                    push @html, '">';
-                    push @html, _link($heading_text,"?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($heading_key));
-                    push @html, "</td>";
-                    push @html, $spacer,"\n";
-
-                    # -- end of row
-                    if ( $wrap && ( $heading_nr == $wrap ) ) {  # last one on this row?
-                        push @html,  "</tr>\n";     # | yes, end this row
-                        push @html,  "</table>\n";  # |
-                        $heading_nr = 0;
-                        $row_nr++;
-                    }
-                    $heading_nr++;
-                }
-
-                # --- all headings printed
-                if ( $heading_nr != 1 )  {     # | Did we just get wrapped to
-                    push @html, "</tr>\n";     # | the next row? In that case
-                    push @html, "</table>\n";  # | we don't need an end-of-row.
-                }
-
-            } else {
-                # --- No, we got the ("Heading1", "Heading2", ...)  version.
-                my $heading_nr = 1;  # first heading
-                my $row_nr     = 1;  # first row
-                foreach my $heading ( @headings ) {
-
-                    if ( $heading_nr == 1 ) {   # first one in the row?
-                        push @html, _start_of_row( $class, $spacer, $indent, $row_nr, $indentation );
-                    }
-
-                    # -- actual headings
-                    push @html, '<td class="',$class;
-                    push @html, '_actv' if $heading eq $active;
-                    push @html, '">';
-                    push @html, _link($heading,"?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($heading));
-                    push @html, "</td>";
-                    push @html, $spacer,"\n";
-
-                    # -- end of row
-                    if ( $wrap && ( $heading_nr == $wrap ) ) {  # last one on the row?
-                        push @html,  "</tr>\n";     # | yes, end this row
-                        push @html,  "</table>\n";  # |
-                        $heading_nr = 0;
-                        $row_nr++;
-                    }
-                    $heading_nr++;
-                }
-
-                # --- all headings printed
-                if ( $heading_nr != 1 )  {     # | Did we just get wrapped to
-                    push @html, "</tr>\n";     # | the next row? In that case
-                    push @html, "</table>\n";  # | we don't need an end-of-row.
-                }
-            }
+        # --- all headings printed
+        if ( $heading_nr > 1 )  {      # | We need to end this
+            push @html, "</tr>\n";     # | row if it didn't just
+            push @html, "</table>\n";  # | get wrapped.
         }
     }
 
     push @html, "<!-- End CGI::Widget::Tabs v$VERSION -->\n";
-    return join("",@html);
-}
-
-
-
-# ----------------------------------------------
-sub _start_of_row {
-# ----------------------------------------------
-    my ( $class, $spacer, $indent, $row_nr, $indentation ) = @_;
-    my @html = ();
-    push @html, "<table class=\"",$class,'">',"\n";
-    push @html,  "<tr>\n";
-    if ( $indent && $row_nr > 1 ) {                     # = print indents if
-        push @html, ( $indentation x ($row_nr - 1));    # = necessary
-    }                                                   # =
-    push @html, $spacer,"\n";                           # each row starts with a spacer
-    return @html;
+    return join("", @html);
 }
 
 
@@ -376,10 +321,10 @@ sub _start_of_row {
 sub _link {
 # ----------------------------------------------
     #
-    # Internal. Create a link for some text to a URI
-    # Expects = (<text>,<url>) pair.
+    # Create a link for some text to a href
+    # Expects = (<text>,<href>) pair.
     #
-    return '<a href="'.$_[1].'">'.($_[0]).'</a>';
+    return qq(<a href="$_[1]">$_[0]</a>);
 }
 
 
@@ -417,9 +362,10 @@ CGI::Widget::Tabs - Create tab widgets in HTML
 
     $h = $tab->heading;               # new OO heading for this tab
     $h->text("TV Listings");          # heading text
-    $h->raw(1);                       # switch off HTML encoding
     $h->key("tv");                    # key identifying this heading
+    $h->raw(1);                       # switch off HTML encoding
     $h->url("whatsontonight.com");    # redirect URL for this heading
+    $h->class("red");                 # this heading has it's own class
 
     # See the EXAMPLE section for a complete example
 
@@ -429,7 +375,7 @@ CGI::Widget::Tabs - Create tab widgets in HTML
 
 CGI::Widget::Tabs lets you simulate tab widgets in HTML. You could benefit
 from a tab widget if you want to serve only one page. Depending on the tab
-selected you fetch and display the underlying data. There are two main
+selected you fetch and display the underlying data. There are three main
 reasons for taking this approach:
 
 1. For the end user not to be directed to YAL or YAP (yet another link / yet
@@ -465,53 +411,56 @@ eye candy. The designed way is that you provide a CSS style sheet and have
 CGI::Widget::Tabs use that. See the class() method for how to do this.
 
 
+=head1 EXAMPLE
 
-=head2 Simple Headings vs. OO Headings
+Before digging into the API and all accessor methods, this example will
+illustrate how to implement the spotting page from above. So you have
+something to start with. It will give you enough clues to get on the road
+quickly. The following code is a simple but complete example. Copy it and run
+it through the webservers CGI engine. (For a even more complete and useful
+demo with multiple tabs, see the file tabs-demo.pl in the CGI::Widget::Tabs
+installation directory.) To fully appreciate it, it would be best to run it
+in a performance environment, like mod_perl or SpeedyCGI.
 
-Tab headings are the things that identify a tab page. Observe the spotting
-example above. Here the different tab pages are identified by the strings
-"Planes", "Trains", "Classics" and "Bikes". They form the heading of each
-page. These tab headings come in two flavors: simple headings and object
-oriented (OO) headings. Simple headings are the most easy and convenient ones
-to use. For instance in the spotting example the four tabs headings are
-easily created by feeding these words as a list to a CGI::Widget::Tabs
-object. And then you are almost done: the headings can be displayed and each
-heading gets it's own self referencing URL. The corresponding statements are:
+    #! /usr/bin/perl -w
 
+    use CGI::Widget::Tabs;
+    use CGI;
+
+    print <<EOT;
+    Content-Type: text/html;
+
+    <head>
+    <style type="text/css">
+    table.tab   { border-bottom: solid thin #C0D4E6; text-align: center }
+    td.tab      { padding: 2 12 2 12; width: 80; background-color: #FAFAD2 }
+    td.tab_actv { padding: 2 12 2 12; width: 80; background-color: #C0D4E6 }
+    td.tab_spc  { width: 5 }
+    td.tab_ind  { width: 15 }
+    </style></head>
+    <body>
+    EOT
+
+    my $cgi = CGI->new;
     my $tab = CGI::Widget::Tabs->new;
-    $tab->headings( qw/Planes Trains Classics Bikes/ );
+    $tab->cgi_object($cgi);
+    $tab->headings( qw/Planes Traines Classics Bikes/ );
     $tab->wrap(3);
-
-This fast and easy to use mechanism has it's downside nonetheless. For
-instance the URL is always a self referencing URL. Also future extensions
---like support for thumbnail images-- is almost impossible. To allow for this
-extensibility headings can be defined in OO fashion. The OO statements to
-produce the headings would be something like:
-
-    my $tab = CGI::Widget::Tabs->new;
-    foreach $ht ( qw/Planes Trains Classics Bikes/ ) {
-        $h = $tab->heading();  # create and add a heading object
-        $h->text($ht);         # display $ht as heading text
-    }
-    $tab->wrap(3);
-
-
-Here the text() method makes the heading object display the text given by
-$ht. Look at the heading() method elsewhere in this document to see which
-other methods are available to define the properties and behaviour of OO
-headings. Did you see that in both accounts the indent() method was not used?
-That is because indentation is automatic. You get that for free. Actually,
-you must explicitely turn if off if you don't want it! Note that you can not
-mix simple headings with OO headings. If you already defined simple headings
-you can't go adding OO headings or vice versa. You need to stick with one
-type.
+    # $tab->wrap(1);    # |uncomment to see the effect of
+    # $tab->indent(0);  # |wrapping at 1 without indentation
+    $tab->default("Traines");
+    $tab->display;
+    print "<br>We now should run some intelligent code ";
+    print "to process <strong>", $tab->active, "</strong><br>";
+    print "</body></html>";
 
 
 
 
-=head1 COMMON METHODS FOR TAB OBJECTS
 
-Common methods deal with tab objects in general. They describe or define the
+=head1 METHODS FOR CGI::Widget::Tabs OBJECTS
+
+These methods deal with tab widgets in general. They describe or define the
 global widget properties and it's behaviour.
 
 
@@ -520,7 +469,8 @@ global widget properties and it's behaviour.
 
 =item B<new()>
 
-Creates and returns a new CGI::Widget::Tabs object. Example:
+Creates and returns a new CGI::Widget::Tabs object. new() does not take any
+arguments. Example:
 
     use CGI::Widget::Tabs;
     my $tab = CGI::Widget::Tabs->new;
@@ -529,28 +479,22 @@ Creates and returns a new CGI::Widget::Tabs object. Example:
 
 =item B<active()>
 
-Returns the current active tab heading. This is (in order of precedence) the
-heading being clicked on, the default heading, or the first in the list.
-Example:
+Returns a string indicating the current active tab heading. This is (in order
+of precedence) the heading being clicked on, the default heading, or the
+first in the list. The string value will either be the heading key or the
+heading text, depending on if you chose to use keys. Example:
 
-    if ( $tab->active eq "Trains" ) {  # display the train tables
-         ....
+    if ( $tab->active() eq "Trains" ) {  # heading text only
 
-    if ( $tab->active eq "-t" ) {      # the key i.s.o. full string
-         ....
+    if ( $tab->active() eq "-t" ) {      # key value ISO heading text
 
-Note how it does not matter if you configured simple headings or OO headings.
-Whichever you have chosen, active() will return the proper value: a value
-from the headings() method if you have configured simple headings, or a value of
-one of the text() or key() methods if you have configured OO
-headings.
 
 
 
 =item B<cgi_object(OBJECT)>
 
-Sets/retrieves the CGI or CGI::Minimal object. If the optional argument
-OBJECT is given, the CGI object is set, otherwise it is retrieved.
+Sets/returns the CGI or CGI::Minimal object. If the optional argument
+OBJECT is given, the CGI object is set, otherwise it is returned.
 CGI::Widget::Tabs uses this object internally to process the CGI query
 parameters. If you want you can use some other CGI object handler. However
 such an object handler must provide a param() method with corresponding
@@ -568,14 +512,14 @@ CGI::Minimal have been tested. Example:
 
 =item B<cgi_param(STRING)>
 
-Sets/retrieves the CGI query parameter. This parameter identifies the tab in
+Sets/returns the CGI query parameter. This parameter identifies the tab in
 the CGI query string (the funny part of the URL with the ? = & # characters).
 If the optional argument STRING is given, the query parameter is set.
-Otherwise it is retrieved. Usually you can leave this untouched. In that case
+Otherwise it is returned. Usually you can leave this untouched. In that case
 the default parameter "tab" is used. You will need to set this if you have
 more CGI query parameters on the URL with "tab" already being taken. Another
-situation is if you use multiple tabs widgets on one page. They both would
-use "tab" by default causing conflicts. Example:
+situation is if you use multiple tab widgets on one page. They both would use
+"tab" by default causing conflicts. Example:
 
    # Lets paint a fruit tab and a vegetable tab
    my $fruits_tab = CGI::Widget::Tabs->new;
@@ -596,10 +540,10 @@ use "tab" by default causing conflicts. Example:
 
 =item B<class(STRING)>
 
-Sets/retrieves the name of the CSS class used for the tabs markup. If the
-optional argument STRING is given the class is set, otherwise it is
-retrieved. In the accompanying style sheet, there are five class elements you
-need to provide:
+Sets/returns the name of the CSS class used for the tabs markup. If the
+optional argument STRING is given the class is set, otherwise it is returned.
+If not set, the widget will be based on the class "tab". In the accompanying
+style sheet, there are five class elements you need to provide:
 
 =over 4
 
@@ -626,7 +570,7 @@ then the elements look like:
 
     <table class="my_tab">    # the entire table
     <td class="my_tab">       # normal tab
-    <td class="my_tab_actv">  # highlighted tab
+    <td class="my_tab_actv">  # active tab
     <td class="my_tab_spc">   # spacer
     <td class="my_tab_ind">   # indentation
 
@@ -637,22 +581,155 @@ example in the EXAMPLE section to see how this all works out.
 
 
 
-=item B<wrap(NUMBER)>
+=item B<default(STRING)>
 
-Sets or retrieves the wrap setting. Without arguments the current wrap
-setting is returned. If the argument NUMBER is given the headings will wrap
-to the next row after NUMBER headings. By default headings are not wrapped.
+Overrides which heading is the default. Normally CGI::Widget::Tabs will make
+the first heading active. Use the default() method if you want to deviate
+from this. The optional argument STRING must either be the heading key or the
+heading text, depending on how you chose to initialize the headings. Example:
 
+    # Make the "Trains" heading the default active one.
+    $tab->active("Trains");
+
+    # ...or perhaps...
+    $tab->active("-t");
+
+
+=item B<display()>
+
+Renders the tab widget and prints the resulting HTML to the default output
+handle (usually STDOUT). Example:
+
+
+    $tab->display;       # this is the same as...
+
+    print $tab->render;  # ...but saves a few keystrokes
+
+See also the render() method.
+
+
+=item B<heading()>
+
+Creates, appends and returns a new heading. The return value will always be
+an OO heading object. Example:
+
+    my $h = $tab->heading();
+
+In general you will use OO headings if the headings() method is not flexible
+enough. For trivial applications the headings() method mostly suffices. Look
+at section PROPERTIES OF OO HEADINGS for more information on OO headings.
+
+
+
+=item B<headings(LIST)>
+
+Sets/returns the tab headings. Without arguments the currently defined
+headings are returned. If no headings are defined, the empty list is
+returned. Any returned heading will always be an OO heading, regardless of if
+and how the initializing LIST argument is used. Look at section PROPERTIES OF
+OO HEADINGS for more info on how to deal with OO headings.
+
+The optional LIST argument is a short-cut to the OO headings interface. The
+elements of LIST can take various forms. Let's take a moment to take a close
+look at the headings of a tab. Tab headings are the things that --from human
+perspective-- identify a tab page. Observe the spotting example above. Here
+the different tab pages are identified by the strings "Planes", "Trains",
+"Classics" and "Bikes". They form the heading for each seperate tab. The LIST
+elements can be used to preset these tab headings.
+
+An element of LIST can be any one of:
+
+=over 4
+
+=item * a string. E.g.:
+
+    qw/Planes Trains Classics Bikes/
+
+This is the simplest initializer. In the spotting example the four tabs
+headings are easily created by feeding these words as a list to the
+headings() method. And then you are almost done: the headings can be
+displayed and each heading gets it's own self referencing URL.
+
+=item * a key/value pair. E.g.:
+
+    ( -p => "Planes",
+      -t => "Trains",
+      -c => "Classics,
+      -b => "Bikes" )
+
+For trivial CGI::Widget::Tabs applications, the k/v pairs are the ones you
+will probably use the most. They come in handy because you don't need to
+check the value returned by active() against very long words. Even better, if
+you change the tab headings (upper/lower case, typo's) but use the same keys
+you don't need to change your code. So it is less  error prone. As a pleasant
+side effect, the URL's get to be significantly shorter. Do notice that the
+keys want to be unique. Keys in a k/v list are not at all magical. You can
+choose any string you like with the provision that they start with the '-'
+(hyphen) sign. The starting '-' of a list entry is what triggers
+CGI::Widget::Tabs to decide this is a k/v entry. Single or dual character
+strings tend to be the most convenient keys.
+
+=item * a hash
+
+This use of the headings() method will clutter up your code. The hash tries
+to mimic and encapsulate all OO accessor methods. If think you need an
+initializer hash, you probably want OO headings. Use it only if you must. If
+you can stick with the strings or k/v pairs. That said, the hash keys are the
+named equivalents of the OO heading properties. E.g.:
+
+    ( { text  => "Planes",
+        key   => "p",
+        url   => "www.aviation-mag.com",
+        class => "heavens_blue",
+        raw   => 0 },
+
+=back
+
+You can mix these types in any way you like. The various types will be
+translated on the fly to OO headings and then processed. Thus you can safely
+say:
+
+    $tab->headings( "Plaines",
+                    -t => "Traines",
+                    { text => "Classics",
+                      key  => "c",
+                      ... } )
+
+Just as the hash initializer, this use does clutter up your code. The reason
+is that different concepts of information are piled up on one big heep. You
+will need to scrutinize the code to understand what it is going on. Although
+it is supported you should refrain yourself from making use of
+these combinations.
+
+As a summary, here are a three examples of the headings() method for the
+spotting page.
+
+    # Example 1: Set the headings with a list of strings
+    my $tab = CGI::Widget::Tabs->new();
+    $tab->headings( qw/Planes Trains Classics Bikes/ );
+
+    # Example 2: Set the headings with a list of k/v pairs
+    my $tab = CGI::Widget::Tabs->new();
+    $tab->headings( -p => "Planes",
+                    -t => "Trains",
+                    -c => "Classics,
+                    -b => "Bikes" );
+
+    # Example 3: Isolate the "Classics" heading
+    my $h = ($tab->headings)[2];
+
+Note that these few statements provide almost enough logic to generate the
+HTML for the tab widget!
 
 
 =item B<indent(BOOLEAN)>
 
-Sets/retrieves the indentation setting. Without arguments the current setting
+Sets/returns the indentation setting. Without arguments the current setting
 is returned. indent() specifies if indentation should be added to the next
-row when the headings get wrapped. indent() is a toggle. By default indent() is
-set to TRUE. You must explicitaly switch off indentation for the desired
-effect. The optional argument BOOLEAN can be any argument evaluating to a
-logical value.
+row when the headings get wrapped. indent() is a toggle. By default indent()
+is set to TRUE. You must explicitely switch it off for the desired effect.
+The optional argument BOOLEAN can be any argument evaluating to a logical
+value.
 
 The purpose of swithing off indentation is to simulate a vertical menu. In
 the spotting example, running
@@ -660,7 +737,7 @@ the spotting example, running
     $tab->wrap(1);
     $tab->indent(0);
 
-could result in something like:
+would result in something like:
 
       __________
      |  Planes  |
@@ -680,18 +757,6 @@ You probably need to tweak your style sheet to have it look nicely.
 
 
 
-=item B<display()>
-
-Prints the tab widget to the default file handle (usually STDOUT). Example:
-
-
-    $tab->display;       # this is the same as...
-
-    print $tab->render;  # ...but saves a few keystrokes
-
-
-
-
 =item B<render()>
 
 Renders the tab widget and returns the resulting HTML code. This is useful if
@@ -704,77 +769,34 @@ document to see how you can influence the markup of the tab widget. Example:
     print HTML $html;  # there's a session id filter behind HTML
 
 
-=back
 
+=item B<wrap(NUMBER)>
 
+Sets or returns the wrap setting. Without arguments the current wrap
+setting is returned. If the argument NUMBER is given the headings will wrap
+to the next row after NUMBER headings. By default headings are not wrapped.
 
-
-=head1 METHODS FOR SIMPLE HEADINGS
-
-These methods define the properties of simple headings. As the simple
-headings are indeed very simple the wording "methods" isn't really accurate:
-you only need one :-)
-
-
-=over 4
-
-=item B<headings(LIST)>
-
-Sets or retrieves simple tab headings. Without arguments the currently
-defined headings are retrieved. If the optional argument LIST is given the
-headings are set. You can specify LIST in two ways:
-
-=over 4
-
-=item * a plain list
-
-=item * a keyword/value list
-
-=back
-
-The keyword/value list comes in handy if you don't want to check the value
-returned by active() against very long words. Moreover, if you change the tab
-headings (upper/lower case, typo's) but use the same keys you don't need to
-change your code. So it is less  error prone. As a pleasant side effect, the
-URL's get significantly shorter. Do notice that the keys want to be unique.
-Example:
-
-    # plain list
-    $tab->headings( qw/Hardware Software Mobiles/ );
-
-    # k/v list
-    $tab->headings( -h => "Hardware",
-                    -s => "Software",
-                    -m => "Mobiles" );
-
-    # what have we got sofar?
-    my @h = $tab->headings;
-
-
-Keys in a k/v list are not at all magical. You can choose any string you like
-with the provision that it starts with the '-' (hyphen) sign. The starting '-'
-of the list entries are what triggers CGI::Widget::Tabs to decide this list
-is a k/v list. So don't go and use plain list entries with a starting '-'.
-That won't work.
 
 =back
 
 
 
 
-=head1 METHODS FOR OO HEADINGS
+=head1 PROPERTIES OF OO HEADINGS
 
 These methods define the properties and behaviour of the object oriented
-headings. Each OO heading can be tailored to specific requirements.
+headings. Each OO heading can be tailored to specific requirements. Fresh new
+OO headings are created by using the heading() method on a CGI::Widget::Tabs
+object. Existing OO headings are returned by the headings() method. In the
+tabs-demo.pl file OO headings are used as well. So look at that demo for a
+real life example. Example:
 
-=over 4
-
-=item B<heading()>
-
-Creates and returns a new heading object. The heading object is automatically
-added to the CGI::Widget::Tab widget. Example:
-
+    # create, append and return a new heading
     my $h = $tab->heading();
+
+    # focus on the third heading
+    my $h = ($tab->headings)[2];
+
 
 The properties and behaviour of an OO heading can be set with the following
 methods:
@@ -783,31 +805,50 @@ methods:
 
 
 
-=item B<text(STRING)>
+=item B<class(STRING)>
 
-Sets/retrieves the heading text for the OO heading. If the optional argument
-STRING is given, the text will be set otherwise it will be retrieved. The
-heading text will be HTML encoded unless explicitely told otherwise (see: raw()).
-Examples:
+Overrides the widget's CSS class for this heading. This is useful if you have
+a specific heading (e.g. "Maintenance") which always needs it's own private
+mark up. If the optional argument STRING is given, the class for this heading
+is set. Otherwise it is retrieved.
 
-    # set heading text
-    $h1->text("Names A > L");
-    $h2->text("Names M < Z");
 
-    # get the text of the 4th heading
-    my $text = ($tab->headings)[3]->text;
+
+=item B<key(STRING)>
+
+Sets/returns the value to use for this heading in the CGI query param list.
+This is similar to the use of keys in key/value pairs in the headings()
+method. The goal is to simplify programming logic and shorten the URL's. (See
+the headings() method  elsewhere in this document for further explanation).
+Example:
+
+    # display the full heading...
+    # ...but use a small key as query param value
+    $h->text("Remote Configurations");
+    $h->key("rc");
+
+In contrast to the use of key/value pairs, CGI::Widget::Tabs knows that this
+is a key and not a value. After all, you are using the key() method, right?
+Consequently you don't need the prepend the key with a hyphen ("-"). You may
+consider using a hyphen for your keys nevertheless. It will lead to more
+transparent code. Observe how the snippet from above with a prepended "-"
+will later on result in the following check:
+
+    if ( $tab->active eq "-rc" ) {  # clearly we are using keys ....
+
+Consider this a mild suggestion.
 
 
 
 =item B<raw(BOOLEAN)>
 
-The heading text will normally be HTML encoded. You can pass those funny
-characters and the heading object will make sure it is displayed properly by
-encoding them into HTML. If you wish you can pass hardcoded HTML. To avoid
-escaping this HTML, you need to set raw() to a logical TRUE. This
-is usually a 1 (one). Setting it to FALSE (usually a 0) will re-enable HTML
-encoding. The optional argument BOOLEAN can be any argument evaluating to a
-logical value. Examples:
+The heading text will normally be HTML encoded. If you wish you can use
+hard coded HTML. To avoid escaping this HTML, you need to set raw() to a
+logical TRUE. This is usually a 1 (one). Setting it to FALSE (usually a 0)
+will re-enable HTML encoding. The optional argument BOOLEAN can be any
+argument evaluating to a logical value. Setting raw() will not take effect
+until the widget is rendered. So it does not matter when you set it, as long
+as you haven't rendered the widget. Examples:
 
     # HTML encoded
     $h1->text("Names A > L");
@@ -821,109 +862,42 @@ logical value. Examples:
     $h2->raw(1);
 
     # get the encoding setting of the fourth element
-    my $raw = ($tab->headings)[3]->raw;
+    my $h = ($tab->headings)[3];
+    my $raw = $h->raw;
 
 
 
-=item B<key(STRING)>
+=item B<text(STRING)>
 
-Sets/retrieves the value to use for this heading in the CGI query param
-list. This is similar to the use of keys in key/value lists of simple
-headings. The goal is to simplify programming logic and shorten default
-URL's. (See the headings() method for simple headings elsewhere in this
-document for further explanation). Note that using keys is only useful if you
-chose to use the default self referencing URL. Example:
+Sets/returns the heading text. If the optional argument STRING is given, the
+text will be set otherwise it will be returned. The heading text will be HTML
+encoded unless explicitely told otherwise (see: raw()). Examples:
 
-    # display the full heading...
-    # ...but use a small key as query param value
-    $h->text("Remote Configurations");
-    $h->key("rc");
+    # set heading text for the first two headings
+    ($tab->headings)[0]->text("Names A > L");
+    ($tab->headings)[1]->text("Names M < Z");
 
-In contrast to the use of keys in simple headings, CGI::Widget::Tabs knows
-that this is a key and not a value. You are using the key() method, right?
-Consequently you don't need the prepend the key with a '-'. You may consider
-using a '-' for your keys nevertheless. It will lead to more transparent
-code. When prepending the key from the snippet above with a '-' it would
-later on result in the following check:
-
-    if ( $tab->active eq '-rc' ) {  # clearly we are using keys
-        ....
-
-Consider this a mild suggestion.
+    # get the text of the 4th heading
+    my $text = ($tab->headings)[3]->text;
 
 
 
 =item B<url(STRING)>
 
-Sets/retrieves the redirect URL for this heading. If the optional argument
-STRING is given the URL is set otherwise it is retrieved. The URL is used
-exactly as given. This means that any query params and values need to be added
-explicitely. If a URL is not set for a heading, the default self referencing
-URL is used. Example:
+Overrides the self referencing URL for this heading. If the optional argument
+STRING is given the URL is set. Otherwise it is returned. The URL is used
+exactly as given. This means that any query params and values need to be
+added explicitely. If a URL is not set, the heading will get a default self
+referencing URL. For trivial applications, you will mostly be using this one.
+Note that generating the self referencing URL will be delayed until the tab
+widget it rendered. This means it will not be returned by the url() method.
+Example:
 
       $h->url("www.someremotesite.com");  # go somewhere else
 
-      my $url = $h->url;                  # retrieve the URL
-
-
+      my $url = $h->url;                  # return the URL
 
 =back
-
-
-
-=item B<headings()>
-
-Returns the list of currently defined OO headings. headings() does not take
-any arguments. Example:
-
-    @h = $tab->headings;
-
-Note that this method can also be used for simple headings.
-
-
-=back
-
-
-=head1 EXAMPLE
-
-As an example probably is the most explanatory, here is something to work
-with. The following code is a simple but complete example. It uses only
-simple headings. Copy it and run it through the webservers CGI engine. (For a
-even more complete and useful demo with multiple tabs, see the file
-tabs-demo.pl in the CGI::Widget::Tabs installation directory.)
-
-    # !/usr/bin/perl -w
-
-    use CGI::Widget::Tabs;
-    use CGI;
-
-    print <<EOT;
-    Content-Type: text/html;
-
-    <head>
-    <style type="text/css">
-    table.my_tab   { border-bottom: solid thin black; text-align: center }
-    td.my_tab      { padding: 2 12 2 12; width: 80; background-color: #FAFAD2 }
-    td.my_tab_actv { padding: 2 12 2 12; width: 80; background-color: #C0D4E6 }
-    td.my_tab_spc  { width: 5 }
-    td.my_tab_ind  { width: 15 }
-    </style></head>
-    <body>
-    EOT
-
-    my $cgi = CGI->new;
-    my $tab = CGI::Widget::Tabs->new;
-    $tab->cgi_object($cgi);
-    $tab->class("my_tab");
-    $tab->headings( "Hardware", "Software", "Lease Cars", "Xerox", "Mobiles");
-    $tab->wrap(3);
-    # $tab->wrap(1);    # |uncomment to see the effect of
-    # $tab->indent(0);  # |wrapping at 1 without indentation
-    $tab->default("Software");
-    $tab->display;
-    print "<br>We now should run some intelligent code ";
-    print "to process <strong>", $tab->active, "</strong><br>";
-    print "</body></html>";
 
 
 
@@ -953,6 +927,10 @@ release.
 
 =item Sagar Shah <sagarshah@softhome.net>
 
+=item Bernie Ledwick <bl@man.fwltech.com>
+
+=item Bernhard Schmalhofer <Bernhard.Schmalhofer@biomax.de>
+
 =back
 
 
@@ -977,3 +955,28 @@ the manpages for CGI or CGI::Minimal, the CSS1 specs from the World Wide Web
 consortium (http://www.w3.org/TR/REC-CSS1)
 
 =cut
+
+
+This fast and easy to use mechanism has it's downside nonetheless. For
+instance the URL is always a self referencing URL. Also future extensions
+--like support for thumbnail images-- is almost impossible. To allow for this
+extensibility headings can be defined in OO fashion. The OO statements to
+produce the headings would be something like:
+
+    my $tab = CGI::Widget::Tabs->new;
+    foreach $ht ( qw/Planes Trains Classics Bikes/ ) {
+        $h = $tab->heading();  # create and add a heading object
+        $h->text($ht);         # display $ht as heading text
+    }
+    $tab->wrap(3);
+
+
+Here the text() method makes the heading object display the text given by
+$ht. Look at the heading() method elsewhere in this document to see which
+other methods are available to define the properties and behaviour of OO
+headings. Did you see that in both accounts the indent() method was not used?
+That is because indentation is automatic. You get that for free. Actually,
+you must explicitely turn if off if you don't want it! Note that you can not
+mix simple headings with OO headings. If you already defined simple headings
+you can't go adding OO headings or vice versa. You need to stick with one
+type.

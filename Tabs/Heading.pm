@@ -1,4 +1,4 @@
-# $Id: Heading.pm,v 1.5 2003/01/26 17:31:20 koos Exp $
+# $Id: Heading.pm,v 1.7 2003/04/04 20:16:10 koos Exp $
 
 use strict;
 use HTML::Entities;
@@ -85,6 +85,21 @@ sub url {
     return $self->{url};
 }
 
+
+
+# ----------------------------------------------
+sub class {
+# ----------------------------------------------
+    #
+    # Specific heading class overriding the default widget class
+    #
+    my $self = shift;
+    if ( @_ ) {
+        $self->{class} = shift;
+    }
+    return $self->{class};
+}
+
 1;
 
 __END__
@@ -94,6 +109,9 @@ __END__
 CGI::Widget::Tabs::Heading - Create OO tab headings for CGI::Widget::Tabs objects
 
 
+=head1 ABSTRACT
+
+None.
 
 =head1 SYNOPSIS
 
