@@ -1,11 +1,12 @@
 CHANGES
 COPYRIGHT
-Tabs/Heading.pm
 INSTALL
-Makefile.PL
 MANIFEST
+Makefile.PL
 README
+Styles.pm
+TODO
 Tabs.pm
+Tabs/Heading.pm
 tabs-demo.pl
 test.pl
-TODO

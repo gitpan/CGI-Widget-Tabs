@@ -1,25 +1,31 @@
 #!/usr/bin/perl
+#!/usr/bin/speedy
 
-# $Id: tabs-demo.pl,v 1.12 2002/11/03 19:38:32 koos Exp $
+# $Id: tabs-demo.pl,v 1.15 2002/11/23 10:21:32 koos Exp $
 
 use strict;
 use warnings;
 use CGI::Widget::Tabs;
+use Styles;
 
+my @styles = css_styles();
 my $cgi = create_cgi_object();
 exit if ! defined $cgi;
 
+my $style_nr = $cgi->param("style") || 1;
+$style_nr--;  # humans start with 1, lists at 0
 print <<EOT;
 Content-Type: text/html;
 
 <head>
 <title>CGI::Widget::Tabs - Demo</title>
+<!-- Style designed by $styles[$style_nr]->{author} -->
 <style type="text/css">
-table.my_tab     { border-bottom: solid thin black }
-td.my_tab        { padding: 2 12 1 12; background-color: #FAFAD2; border: solid thin #BABAA2 }
-td.my_tab_actv   { padding: 2 12 1 12; background-color: #C0D4E6; font-weight: bold; border: solid thin black }
-td.my_tab_spc    { width: 10 }
-</style></head>
+EOT
+print $styles[$style_nr]->{style};
+print <<EOT;
+</style>
+</head>
 <body><center>
 <h1>F1 - Team Simulation - 2002</h1>
 EOT
@@ -28,7 +34,7 @@ my $main_tab = CGI::Widget::Tabs->new;  # first set up the main tab
 $main_tab->cgi_object($cgi);            # access to the outside world
 $main_tab->cgi_param("t");              # |comment this line out to see it will
                                         # |use the default value "tab"
-$main_tab->headings( qw/Drivers Courses Cars/ ); # |The headings list is a plain list.
+$main_tab->headings( "Drivers", "Courses", "Cars", "Style sheets" ); # |The headings list is a plain list.
                                                  # |This means the actual words
                                                  # |are used in the URL.
 $main_tab->class("my_tab");  # CSS base style to use
@@ -98,28 +104,69 @@ HEADINGS: {
         $details->cgi_param("dc");  # _details _cars
         last HEADINGS;
     };
+
+
+    ( $main_tab->active eq "Style sheets" ) && do {
+
+        # -- We need to know how we got here. So we recreate the
+        # -- query string, modify the style param, and feed it back
+        # -- to the script. The script should then end up in the same
+        # -- state as on the last mouse click.
+        my $query_string = "";
+        # why do we do this by hand ? $tab->active knows this
+        # already. We should be able to access this info.
+        foreach ( $cgi->param() ) {
+            next if ( $_ eq "style" );
+            $query_string .= "$_=".$cgi->param($_)."&";
+        };
+        chop $query_string;
+
+        print <<EOT;
+<p>Are you graphically enabled?
+<a style="color:blue" href="mailto:koos_pol\@raketnet.nl?Subject=CGI::Widget::Tabs style sheet">
+Send me</a> your own styles. I will gladly add them to this list!</p>
+<table>
+<tr style="font-weight: bold">
+<td>Description</td>
+</tr>
+EOT
+       my $style_num = 1 ;
+       foreach my $style ( @styles ) {
+           print "<tr>\n";
+           print "<td>$style_num <a style=\"color:#000000\" href=\"?$query_string&style=$style_num\">".$style->{descr}."</a></td>\n";
+           print "</tr>\n";
+           $style_num++;
+       }
+       print "</table>\n";
+   };
 }
 
-# run the selected details tab
-$details->display;
 
-print "<br>We now should run some intelligent code ";
-print "to process <strong>", $details->active,"</strong><br>\n";
-if ( $details->active eq '-ms' ) {
-    print <<EOT;
+
+# run the selected details tab
+if ( $main_tab->active ne "Style sheets" ) {
+    $details->display ;  # there is no details for this one
+
+    print "<br>We now should run some intelligent code ";
+    print "to process <strong>", $details->active,"</strong><br>\n";
+    if ( $details->active eq '-ms' ) {
+        print <<EOT;
 <br>
 <font color="red">
 WHOAA!  There are two tab headings identified by the same
 value &quot;-ms;&quot;</font>
 EOT
+    }
 }
 print "</center>\n</body>\n</html>";
+
+
 
 
 # ---------------------------
 sub create_cgi_object {
 # ---------------------------
-    if  ( ( eval {require CGI::Minimal; $cgi = CGI::Minimal->new} )
+    if  ( ( eval {require CGI::Minimal; &CGI::Minimal::reset_globals; $cgi = CGI::Minimal->new} )
           or
           ( eval {require CGI; $cgi = CGI->new} )
         ) {
@@ -136,6 +183,5 @@ Content-Type: text/html;
 EOT
     return undef
 }
-
 
 

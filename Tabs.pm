@@ -1,4 +1,4 @@
-# $Id: Tabs.pm,v 1.24 2002/11/09 14:22:24 koos Exp $
+# $Id: Tabs.pm,v 1.25 2002/11/23 09:52:48 koos Exp $
 
 package CGI::Widget::Tabs;
 
@@ -10,7 +10,7 @@ use CGI::Widget::Tabs::Heading;
 use URI::Escape();
 use HTML::Entities();
 
-our $VERSION = '1.03.01';
+our $VERSION = '1.04';
 
 
 

@@ -85,15 +85,9 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.03.01 (2002-11-12)
+1.04 (2002-11-23)
 --------------------
-This is a maintenance release.
-
-- Changed : Adopted 2 digit version numbering.
-- Changed : ->cgi_object() now checks if the passed object
-            is a valid CGI or CGI::Minimal object. (Suggested
-            by Bodo Eing <eingb@uni-muenster.de>)
-- Fixed   : Typo in test script (test.pl)
+    - Added CSS example style sheets to the demo script.
 
 
-$Id: README,v 1.13 2002/11/09 14:22:24 koos Exp $
+$Id: README,v 1.14 2002/11/23 09:52:48 koos Exp $
