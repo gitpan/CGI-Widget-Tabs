@@ -85,24 +85,15 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.3 (2002-11-12)
-----------------
-Continuous discussions with Sagar Shah <sagarshah@softhome.net>
-had made me (finally) realize that CGI::Widget::Tabs can't be
-extended without serious design change. (Is everybody so
-stubborn, or is it just me?) Well, here it is Sagar :-)
+1.03.01 (2002-11-12)
+--------------------
+This is a maintenance release.
 
-- Added an OO interface as a basis for future extensions of tab
-  headings.
-- OO headings can be configured with the new methods:
-      text()       HTML escaped heading text
-      raw_text()   HTML unescaped heading text
-      key()        Value to be used as CGI query param value
-      url()        Redirection URL
-- Documentation additions, changes and fixes.
-- Small change to the layout of the HTML table displaying the
-  widget
-- The test script (`make test') now supports both CGI and
-  CGI::Minimal
+- Changed : Adopted 2 digit version numbering.
+- Changed : ->cgi_object() now checks if the passed object
+            is a valid CGI or CGI::Minimal object. (Suggested
+            by Bodo Eing <eingb@uni-muenster.de>)
+- Fixed   : Typo in test script (test.pl)
 
-$Id: README,v 1.12 2002/11/02 13:26:00 koos Exp $
+
+$Id: README,v 1.13 2002/11/09 14:22:24 koos Exp $

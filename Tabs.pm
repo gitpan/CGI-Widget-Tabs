@@ -1,15 +1,16 @@
-# $Id: Tabs.pm,v 1.23 2002/11/03 11:04:10 koos Exp $
+# $Id: Tabs.pm,v 1.24 2002/11/09 14:22:24 koos Exp $
 
 package CGI::Widget::Tabs;
 
 use 5.006;
 use strict;
 use warnings;
+use Carp;
 use CGI::Widget::Tabs::Heading;
 use URI::Escape();
 use HTML::Entities();
 
-our $VERSION = '1.3';
+our $VERSION = '1.03.01';
 
 
 
@@ -92,8 +93,13 @@ sub cgi_object {
     # Could be a CGI object or a CGI::Minimal object.
     #
     my $self = shift;
-    if ( @_ ) {
-        $self->{cgi_object} = shift;
+    my $cgi = shift;
+    if ( $cgi ) {
+        if ( ref $cgi ne "CGI" and ref $cgi ne "CGI::Minimal") {
+            my $pkg = __PACKAGE__;
+            croak "[$pkg] Warning: Expected CGI or CGI::Minimal object.\n";
+        }
+        $self->{cgi_object} = $cgi;
     }
 
     return $self->{cgi_object};

@@ -1,13 +1,4 @@
-$Id: TODO,v 1.4 2002/11/02 13:27:35 koos Exp $
-
-MUST DO
-
-- Test for an available and valid CGI/CGI::Minimal object
-  in those methods that require it (currently active() and
-  render()).
-
-
-
+$Id: TODO,v 1.5 2002/11/09 14:12:05 koos Exp $
 
 WISH LIST
 

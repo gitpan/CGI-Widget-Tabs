@@ -46,7 +46,7 @@ conflicts.
 
 
 
-1.3 (2002-11-12)
+1.3 (2002-11-03)
 ----------------
 Continuous discussions with Sagar Shah <sagarshah@softhome.net>
 had made me (finally) realize that CGI::Widget::Tabs can't be
@@ -65,3 +65,15 @@ stubborn? Or is it just me?) Well, here it is Sagar :-)
   widget
 - The test script (`make test') now supports both CGI and
   CGI::Minimal
+
+
+
+1.03.01 (2002-11-12)
+--------------------
+This is a maintenance release.
+
+- Changed : Adopted 2 digit version numbering.
+- Changed : ->cgi_object() now checks if the passed object
+            is a valid CGI or CGI::Minimal object. (Suggested
+            by Bodo Eing <eingb@uni-muenster.de>)
+- Fixed   : Typo in test script (test.pl)

@@ -1,4 +1,4 @@
-# $Id: test.pl,v 1.6 2002/11/02 13:14:00 koos Exp $
+# $Id: test.pl,v 1.7 2002/11/09 14:22:24 koos Exp $
 use strict;
 use Test;
 use CGI::Widget::Tabs;
@@ -154,7 +154,7 @@ sub active_oo {
 # -------------------------------------
 sub cgi_available {
 # -------------------------------------
-    if  ( (eval {require CCGI; $cgi = CGI->new} ) or
+    if  ( (eval {require CGI; $cgi = CGI->new} ) or
           (eval {require CGI::Minimal; $cgi = CGI::Minimal->new} ) ) {
         print "Found ".(ref $cgi)." and using it.\n";
         return $cgi;
