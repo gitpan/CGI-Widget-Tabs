@@ -1,5 +1,5 @@
-CGI::Widget::Tabs, version 1.2
-==============================
+CGI::Widget::Tabs
+=================
 
 
 
@@ -94,18 +94,12 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.2 (2002-08-16)
------------------------------
-- CGI::Tabs has adopted the namespace CGI::Widget::Tabs. To
-  create a new tab object, now issue the statements:
-      use CGI::Widget::Tabs;
-      $tab = CGI::Widget::Tabs->new();
-
-- Added the ->render() method (suggestions from
-  Bodo Eing <eingb@uni-muenster.de>)
-
-- Minor documentation changes
-
-- Made it's first public appearance on CPAN
-  (http://cpan.perl.org)
+1.2.1 (2002-09-07)
+------------------
+- Fixed: uncaught undef
+- Documentation fixes (typo's, grammar, etc)
+- Documentation additions (section, coding examples, etc)
+- Minor internal code clean up
+- Added version as comment to resulting HTML
+- Added TODO
 

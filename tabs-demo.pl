@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: tabs-demo.pl,v 1.7 2002/08/17 12:00:21 koos Exp $
+# $Id: tabs-demo.pl,v 1.10 2002/09/07 04:28:20 koos Exp $
 
 use strict;
 use warnings;
@@ -11,6 +11,7 @@ print <<EOT;
 Content-Type: text/html;
 
 <head>
+<title>CGI::Widget::Tabs - Demo</title>
 <style type="text/css">
 table.my_tab     { border-bottom: solid thin black }
 td.my_tab        { padding: 2 12 1 12; background-color: #FAFAD2; border: solid thin #BABAA2 }
@@ -77,13 +78,14 @@ $details->class("my_tab");
 $details->display;
 
 print "<br>We now should run some intelligent code ";
-print "to process <strong>", $details->active,"</strong><br>";
+print "to process <strong>", $details->active,"</strong><br>\n";
 if ( $details->active eq '-ms' ) {
     print <<EOT;
-    <br><font color="red">
-    WHOAA!  There are two driver details tabs identified by the same
-    value &quot;-ms;&quot;</font>
+<br>
+<font color="red">
+WHOAA!  There are two driver details tabs identified by the same
+value &quot;-ms;&quot;</font>
 EOT
 }
-print "</center></body></html>";
+print "</center>\n</body>\n</html>";
 

@@ -1,10 +1,10 @@
 1.0  (2002-07-09)
------------------------------
+----------------
 First release
 
 
 1.1 (2002-08-07)
------------------------------
+----------------
 The leading minus sign in key/value lists is now propagated to
 the query params in the URL. The reason is that you would get
 bitten if you wanted to access the CGI tabs parameter directly
@@ -20,7 +20,7 @@ conflicts.
 
 
 1.2 (2002-08-16)
------------------------------
+----------------
 - CGI::Tabs has adopted the namespace CGI::Widget::Tabs. To
   create a new tab object, now issue the statements:
       use CGI::Widget::Tabs;
@@ -35,3 +35,11 @@ conflicts.
   (http://cpan.perl.org)
 
 
+1.2.1 (2002-09-07)
+------------------
+- Fixed: uncaught undef
+- Documentation fixes (typo's, grammar, etc)
+- Documentation additions (section, coding examples, etc)
+- Minor internal code clean up
+- Added version as comment to resulting HTML
+- Added TODO

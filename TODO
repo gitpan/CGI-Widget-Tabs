@@ -1,0 +1,17 @@
+Must do (patches welcome)
+-------------------------
+- Test for an available and valid CGI/CGI::Minimal object
+  in those methods that require it (currently active() and
+  render()).
+
+- Enhance the headings() interface. It should allow for future
+  extensions like image and redir support.
+
+
+
+Wish list (patches welcome)
+---------------------------
+- Provide a hash lookup as a replacement mechanism for
+  $cgi->params() for those who don't use CGI or CGI::Minimal
+
+- Wrap tabs to the next line if they exceed a user defined number.
