@@ -1,11 +1,13 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
-# $Id: tabs-demo.pl,v 1.10 2002/09/07 04:28:20 koos Exp $
+# $Id: tabs-demo.pl,v 1.12 2002/11/03 19:38:32 koos Exp $
 
 use strict;
 use warnings;
 use CGI::Widget::Tabs;
-use CGI;
+
+my $cgi = create_cgi_object();
+exit if ! defined $cgi;
 
 print <<EOT;
 Content-Type: text/html;
@@ -16,65 +18,89 @@ Content-Type: text/html;
 table.my_tab     { border-bottom: solid thin black }
 td.my_tab        { padding: 2 12 1 12; background-color: #FAFAD2; border: solid thin #BABAA2 }
 td.my_tab_actv   { padding: 2 12 1 12; background-color: #C0D4E6; font-weight: bold; border: solid thin black }
-td.my_tab_spc    { width: 15 }
+td.my_tab_spc    { width: 10 }
 </style></head>
 <body><center>
 <h1>F1 - Team Simulation - 2002</h1>
 EOT
 
-my $cgi = CGI->new;
 my $main_tab = CGI::Widget::Tabs->new;  # first set up the main tab
-$main_tab->cgi_object($cgi);    # access to the "outside world"
-$main_tab->headings( -d => "Drivers", -t => "Courses", -c => "Cars" ); # -t = track
-$main_tab->class("my_tab");     # CSS base style to use
-$main_tab->display;
-print "<br>";
+$main_tab->cgi_object($cgi);            # access to the outside world
+$main_tab->cgi_param("t");              # |comment this line out to see it will
+                                        # |use the default value "tab"
+$main_tab->headings( qw/Drivers Courses Cars/ ); # |The headings list is a plain list.
+                                                 # |This means the actual words
+                                                 # |are used in the URL.
+$main_tab->class("my_tab");  # CSS base style to use
+$main_tab->display;  # paint the tab
 
-# predefine the possible details tabs.
-# note how none of the headings are visisble in the URL query params!
-my $details_tabs = {
-    # Drivers tab: selected if from the main tab -d is returned
-    -d => { headings   => [ -jpm => "J.P. Montoya",
+print "<br>";  # I could probably use some CSS bottom margin too.
+
+# --- Predefine the possible details tabs.
+# --- Notice how the details tabs are a mix of simple headings and
+# --- OO headings. Various configuration methods are used to illustate
+# --- possible uses.
+# ---
+# --- Usually multiple tabs can be configured much cleaner and more efficient
+# --- For instance a hash containing a complete menu structure plus options
+# --- can be made in a flash. The reason things look a bit chaotic,
+# --- it is to allow all options being demonstrated.
+
+# Set up the details tab. The first few methods are common methods:
+my $details = CGI::Widget::Tabs->new;
+$details->cgi_object($cgi); # access to the outside world
+$details->class("my_tab");  # we'll use the same style sheet as the main tab
+
+# --- Differentiate based on the active heading from the main tab
+
+HEADINGS: {
+    # - This tab uses simple headings:
+    ( $main_tab->active eq "Courses" ) && do {
+        $details->headings( "Monte Carlo", "Silverstone", "Nurburgring", "Monza" );
+        $details->cgi_param("dt");  # _details _tracks
+        last HEADINGS;
+    };
+
+    # - This tab uses simple headings too, but k/v pairs:
+    ( $main_tab->active eq "Drivers" ) && do {
+        $details->headings( -jpm => "J.P. Montoya",
                             -rs  => "R. Shumacher",
                             -ms  => "M. Shumacher",
                             -rb  => "R. Barichello",
                             -dc  => "D. Coulthard",
-                            -ms  => "M. Salo" ],
-            cgi_param  => "dd"  },  # _details _drivers
+                            -ms  => "M. Salo" );
+        $details->cgi_param("dd"); # _details _drivers
+        last HEADINGS;
+    };
 
-    # Course tab: selected if from the main tab -t is returned
-    -t => { headings   => [ -mc => "Monte Carlo",
-                            -s  => "Silverstone",
-                            -n  => "Nurburgring",
-                            -m  => "Monza" ],
-            cgi_param  => "dt"  },  # _details _tracks
 
-    # Cars tab: selected if from the main tab -c is returned
-    -c => { headings   => [ -f   => "Ferrari",
-                            -bmw => "BMW Williams",
-                            -mm  => "McLaren Mercedes" ],
-            cgi_param  => "dc" }  # _details _cars
-};
+    # - This tab goes for the OO approach
+    ( $main_tab->active eq "Cars" ) && do {
+        my $h;
 
-# details triggered by the main tab
-my $selected_details = $details_tabs->{$main_tab->active};
+        $h = $details->heading;   # add a heading
+        $h->text("Ferrari");      # text to display
 
-# set up a details tab
-my $details = CGI::Widget::Tabs->new;
+        $h = $details->heading;   # add another heading
+        $h->raw_text("McLaren&nbsp;Mercedes");  # preformatted text to display
 
-# comm link with the outside world
-$details->cgi_object($cgi);
+        $h = $details->heading;   # add another heading
+        $h->text("BMW Williams"); # text to display...
+        $h->key("bmw");           # ...but key to use
 
-# this details tab is identified by it's own cgi_param
-$details->cgi_param($selected_details->{cgi_param});
+        $h = $details->heading;   # add another heading
+        $h->text("Chrysler");     # |we don't have F1 records on Chrysler
+                                  # |redirect to Chrysler homepage instead
+        $h->url("http://www.chrysler.com");
+        $h->key("chr");           # this statement is useless. we don't use
+                                  # the default self refer. URL but a tailored one
 
-# likewise, it's heading are also hand-picked
-$details->headings( @{ $selected_details->{headings} } );
+        $details->cgi_param("dc");  # _details _cars
+        last HEADINGS;
+    };
+}
 
-# we'll use the same style sheet for now
-$details->class("my_tab");
-
-# run the lot
+# run the selected details tab
 $details->display;
 
 print "<br>We now should run some intelligent code ";
@@ -83,9 +109,33 @@ if ( $details->active eq '-ms' ) {
     print <<EOT;
 <br>
 <font color="red">
-WHOAA!  There are two driver details tabs identified by the same
+WHOAA!  There are two tab headings identified by the same
 value &quot;-ms;&quot;</font>
 EOT
 }
 print "</center>\n</body>\n</html>";
+
+
+# ---------------------------
+sub create_cgi_object {
+# ---------------------------
+    if  ( ( eval {require CGI::Minimal; $cgi = CGI::Minimal->new} )
+          or
+          ( eval {require CGI; $cgi = CGI->new} )
+        ) {
+        return $cgi;
+    }
+    # - This is error handling. As such, it should be taken care
+    # - of by the caller. But I didn't wanted to clutter the main code.
+    print <<EOT;
+Content-Type: text/html;
+
+<head>
+<title>ERROR</title>
+<body>CGI not found and CGI::Minimal not found.</body></html>
+EOT
+    return undef
+}
+
+
 

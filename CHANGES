@@ -43,3 +43,25 @@ conflicts.
 - Minor internal code clean up
 - Added version as comment to resulting HTML
 - Added TODO
+
+
+
+1.3 (2002-11-12)
+----------------
+Continuous discussions with Sagar Shah <sagarshah@softhome.net>
+had made me (finally) realize that CGI::Widget::Tabs can't be
+extended without serious design change. (Is everybody so
+stubborn? Or is it just me?) Well, here it is Sagar :-)
+
+- Added an OO interface as a basis for future extensions of tab
+  headings.
+- OO headings can be configured with the new methods:
+      text()       HTML escaped heading text
+      raw_text()   HTML unescaped heading text
+      key()        Value to be used as CGI query param value
+      url()        Redirection URL
+- Documentation additions, changes and fixes.
+- Small change to the layout of the HTML table displaying the
+  widget
+- The test script (`make test') now supports both CGI and
+  CGI::Minimal

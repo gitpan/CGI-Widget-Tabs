@@ -6,8 +6,8 @@ CGI::Widget::Tabs
 DESCRIPTION
 
 CGI::Widget::Tabs lets you simulate tab widgets in HTML. You
-could benefit from tabs if you want to serve only one page.
-Depending on the tab selected you fetch and display the
+could benefit from a tab widget if you want to serve only one
+page. Depending on the tab selected you fetch and display the
 underlying data. There are two main reasons for taking this
 approach:
 
@@ -18,36 +18,27 @@ point of entry paradigm.
 2. For the Perl hacker to generate and display multiple data
 sources within the same script environment.
 
-The nice thing about CGI::Widget::Tabs is that the tabs now their
-internal state. So you can ask a tab for instance which tab page
-is highlighted. This way you get direct feedback on what the user
-clicked.
 
+As an example the following tabs could be used on a web page for
+someone's spotting hobby:
 
+      ________      ________      _____________
+     / Planes \    / Trains \    / Automobiles \
+-----------------------------------------------------
 
-EXAMPLES
-
-     __________      __________      ____________      _______
-    / Software \    / Hardware \    / Lease Cars \    / Xerox \
--------------------------------------------------------------------
-
-
-     __________________      _________      ___________
-    / Personal Details \    / Pension \    / Insurance \
-------------------------------------------------------------
-
-
-These trivial examples could be used in for instance a
-maintenance application or a human resources application.
+The nice thing about CGI::Widget::Tabs is that the tabs know
+their internal state. So you can ask a tab for instance which tab
+heading has been clicked by the user. This way you get instant
+feedback.
 
 
 
 DOCUMENTATION
 
 The documentation is included in the module. You can read it's
-manpage after installation with `man CGI::Widget::Tabs'. If you
-prefer you can read the documentation before installation with
-`perldoc ./Tabs.pm'
+manpage after installation with `perldoc CGI::Widget::Tabs'. If
+you prefer you can read the documentation before installation
+with `perldoc ./Tabs.pm'
 
 
 
@@ -94,12 +85,24 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.2.1 (2002-09-07)
-------------------
-- Fixed: uncaught undef
-- Documentation fixes (typo's, grammar, etc)
-- Documentation additions (section, coding examples, etc)
-- Minor internal code clean up
-- Added version as comment to resulting HTML
-- Added TODO
+1.3 (2002-11-12)
+----------------
+Continuous discussions with Sagar Shah <sagarshah@softhome.net>
+had made me (finally) realize that CGI::Widget::Tabs can't be
+extended without serious design change. (Is everybody so
+stubborn, or is it just me?) Well, here it is Sagar :-)
 
+- Added an OO interface as a basis for future extensions of tab
+  headings.
+- OO headings can be configured with the new methods:
+      text()       HTML escaped heading text
+      raw_text()   HTML unescaped heading text
+      key()        Value to be used as CGI query param value
+      url()        Redirection URL
+- Documentation additions, changes and fixes.
+- Small change to the layout of the HTML table displaying the
+  widget
+- The test script (`make test') now supports both CGI and
+  CGI::Minimal
+
+$Id: README,v 1.12 2002/11/02 13:26:00 koos Exp $

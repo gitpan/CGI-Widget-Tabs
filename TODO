@@ -1,17 +1,19 @@
-Must do (patches welcome)
--------------------------
+$Id: TODO,v 1.4 2002/11/02 13:27:35 koos Exp $
+
+MUST DO
+
 - Test for an available and valid CGI/CGI::Minimal object
   in those methods that require it (currently active() and
   render()).
 
-- Enhance the headings() interface. It should allow for future
-  extensions like image and redir support.
 
 
 
-Wish list (patches welcome)
----------------------------
+WISH LIST
+
 - Provide a hash lookup as a replacement mechanism for
   $cgi->params() for those who don't use CGI or CGI::Minimal
-
 - Wrap tabs to the next line if they exceed a user defined number.
+
+
+Patches welcome.
