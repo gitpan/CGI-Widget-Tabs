@@ -458,6 +458,7 @@ DEPENDENCIES
     This module has these optional dependencies:
 
      File::Find::Rule
+     Pod::Coverage
      Test::Pod (0.95 or higher)
      Test::Signature
 
@@ -479,8 +480,6 @@ TODO
         use of Class::MethodMaker
 
     *   Consider using Test::More in 003_main.t
-
-    *   Pod::Coverage test
 
     Patches always welcome.
 

@@ -1,8 +1,12 @@
-1.0.9   - Added drop_params feature (patch from Koos Pol)
+1.10	- Added Pod::Coverage tests into 002_pod.t
+	- Corrected version numbers in Changes file
+	- Correctd Pod error in CGI::Widget::Tabs::Headings
+
+1.09    - Added drop_params feature (patch from Koos Pol)
 	- Removed 'Limitations and Extensibility' (was no longer relevant)
 	- Moved docs for Headings into the Headings class.
 
-1.0.8 	- New Maintainer/Owner: Sagar R. Shah
+1.08 	- New Maintainer/Owner: Sagar R. Shah
      	- Moved from ExtUtils::MakeMaker to Module::Build for building
       	- Added optional Test::Pod and Test::Signature tests
   	- Reorganised files to newer style layout with lib and t subdirs

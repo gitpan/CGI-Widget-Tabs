@@ -1,7 +1,5 @@
 
-# ---------------------------
 sub css_styles {
-# ---------------------------
 
     my @styles = (
                   { descr  => "Google look-a-like",

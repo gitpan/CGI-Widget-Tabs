@@ -138,7 +138,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.09";
+$VERSION = "1.10";
 
 
 
@@ -845,6 +845,7 @@ Test::More is only required for testing purposes.
 This module has these optional dependencies:
 
  File::Find::Rule
+ Pod::Coverage
  Test::Pod (0.95 or higher)
  Test::Signature
 
@@ -877,10 +878,6 @@ Class::MethodMaker
 =item *
 
 Consider using Test::More in 003_main.t
-
-=item *
-
-Pod::Coverage test
 
 =back
 
