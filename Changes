@@ -1,3 +1,7 @@
+1.0.9   - Added drop_params feature (patch from Koos Pol)
+	- Removed 'Limitations and Extensibility' (was no longer relevant)
+	- Moved docs for Headings into the Headings class.
+
 1.0.8 	- New Maintainer/Owner: Sagar R. Shah
      	- Moved from ExtUtils::MakeMaker to Module::Build for building
       	- Added optional Test::Pod and Test::Signature tests

@@ -16,6 +16,7 @@ CGI::Widget::Tabs - Create tab widgets in HTML
     $tab->class("my_tab");       # the CSS class to use for markup
     $tab->cgi_object($cgi);      # the object holding the query params
     $tab->cgi_param("t");        # the CGI query parameter to use
+    $tab->drop_params("ays");    # do NOT pass on "Are You Sure?" answers
     $tab->wrap(4);               # wrap after 4 headings...
     $tab->indent(1);             # ...and add indentation
     $tab->render;                # the resulting HTML code
@@ -137,7 +138,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.08";
+$VERSION = "1.09";
 
 
 
@@ -281,6 +282,36 @@ sub cgi_param {
     return $self->{cgi_param} || "tab";
 }
 
+=head3 drop_params
+
+  drop_params(LIST)
+
+Sets/retrieves  the list of  CGI parameters   to be  dropped from  the parameter
+list.  If the optional argument  LIST is given the  list is set, otherwise it is
+retrieved. Suppose you have clicked "Yes" to some "Are  you sure?" question. You
+certainly want that question  to be asked  every time, right? Especially  if the
+actions that go with it  are destructive.  If you did  NOT specify the parameter
+to be dropped,  "Yes"  would have  been  silently  passed  on to  the  parameter
+list. That would effectively preset "Are you sure" with "Yes" causing disastrous
+results. Examples:
+
+    $tab->drop_params("ays");  # drop the "Are you sure" param
+
+=cut
+
+sub drop_params {
+
+    #
+    # These parameters should not be passed on.
+    #
+    my $self = shift;
+    if ( @_ ) {
+        $self->{drop_params} = [@_];
+    }
+    return @{ $self->{drop_params} || [] };
+}
+
+
 
 =head3 class
 
@@ -351,10 +382,10 @@ this. The optional argument STRING must either be the heading key or the heading
 text, depending on how you chose to initialize the headings. Example:
 
     # Make the "Trains" heading the default active one.
-    $tab->active("Trains");
+    $tab->default("Trains");
 
     # ...or perhaps...
-    $tab->active("-t");
+    $tab->default("-t");
 
 =cut
 
@@ -658,8 +689,14 @@ sub render {
     my $url;
     my $query_string_min_min;  # the query string minus the varying tab
 
-    # - reproduce the CGI query string EXCEPT the varying tab
-    my @param_list = grep( $_ ne $cgi_param, $cgi->param() );
+    # -- reproduce the CGI query string EXCEPT the varying tab
+    my @param_list = grep( $_ ne $cgi_param,$cgi->param() );
+
+    # - From this list remove the wannabe-dropped
+    my %drop_params = ();
+    foreach ( $self->drop_params() ) { $drop_params{$_} = 1 };
+    @param_list = grep (!exists $drop_params{$_}, @param_list);
+
     if ( @param_list ) {
         $query_string_min_min = join "&", map ( "$_=".URI::Escape::uri_escape($cgi->param($_)||"") , @param_list );
         $query_string_min_min .= "&";
@@ -775,123 +812,6 @@ sub _link {
 __END__
 
 
-=head1 PROPERTIES OF OO HEADINGS
-
-These methods define the properties and behaviour of the object oriented
-headings. Each OO heading can be tailored to specific requirements. Fresh new
-OO headings are created by using the heading() method on a CGI::Widget::Tabs
-object. Existing OO headings are returned by the headings() method. In the
-tabs-demo.pl file OO headings are used as well. So look at that demo for a
-real life example. Example:
-
-    # create, append and return a new heading
-    my $h = $tab->heading();
-
-    # focus on the third heading
-    my $h = ($tab->headings)[2];
-
-
-The properties and behaviour of an OO heading can be set with the following
-methods:
-
-=over 4
-
-
-
-=item B<class(STRING)>
-
-Overrides the widget's CSS class for this heading. This is useful if you have
-a specific heading (e.g. "Maintenance") which always needs it's own private
-mark up. If the optional argument STRING is given, the class for this heading
-is set. Otherwise it is retrieved.
-
-
-
-=item B<key(STRING)>
-
-Sets/returns the value to use for this heading in the CGI query param list.
-This is similar to the use of keys in key/value pairs in the headings()
-method. The goal is to simplify programming logic and shorten the URL's. (See
-the headings() method  elsewhere in this document for further explanation).
-Example:
-
-    # display the full heading...
-    # ...but use a small key as query param value
-    $h->text("Remote Configurations");
-    $h->key("rc");
-
-In contrast to the use of key/value pairs, CGI::Widget::Tabs knows that this
-is a key and not a value. After all, you are using the key() method, right?
-Consequently you don't need the prepend the key with a hyphen ("-"). You may
-consider using a hyphen for your keys nevertheless. It will lead to more
-transparent code. Observe how the snippet from above with a prepended "-"
-will later on result in the following check:
-
-    if ( $tab->active eq "-rc" ) {  # clearly we are using keys ....
-
-Consider this a mild suggestion.
-
-
-
-=item B<raw(BOOLEAN)>
-
-The heading text will normally be HTML encoded. If you wish you can use
-hard coded HTML. To avoid escaping this HTML, you need to set raw() to a
-logical TRUE. This is usually a 1 (one). Setting it to FALSE (usually a 0)
-will re-enable HTML encoding. The optional argument BOOLEAN can be any
-argument evaluating to a logical value. Setting raw() will not take effect
-until the widget is rendered. So it does not matter when you set it, as long
-as you haven't rendered the widget. Examples:
-
-    # HTML encoded
-    $h1->text("Names A > L");
-    $h2->text("Names M < Z");
-
-    # Raw
-    $h1->text("Names A &gt; L");
-    $h1->raw(1);
-
-    $h2->text("Names M &lt; Z");
-    $h2->raw(1);
-
-    # get the encoding setting of the fourth element
-    my $h = ($tab->headings)[3];
-    my $raw = $h->raw;
-
-
-
-=item B<text(STRING)>
-
-Sets/returns the heading text. If the optional argument STRING is given, the
-text will be set otherwise it will be returned. The heading text will be HTML
-encoded unless explicitely told otherwise (see: raw()). Examples:
-
-    # set heading text for the first two headings
-    ($tab->headings)[0]->text("Names A > L");
-    ($tab->headings)[1]->text("Names M < Z");
-
-    # get the text of the 4th heading
-    my $text = ($tab->headings)[3]->text;
-
-
-
-=item B<url(STRING)>
-
-Overrides the self referencing URL for this heading. If the optional argument
-STRING is given the URL is set. Otherwise it is returned. The URL is used
-exactly as given. This means that any query params and values need to be
-added explicitely. If a URL is not set, the heading will get a default self
-referencing URL. For trivial applications, you will mostly be using this one.
-Note that generating the self referencing URL will be delayed until the tab
-widget it rendered. This means it will not be returned by the url() method.
-Example:
-
-      $h->url("www.someremotesite.com");  # go somewhere else
-
-      my $url = $h->url;                  # return the URL
-
-=back
-
 =head1 INSTALLATION
 
 This module uses Module::Build for its installation. To install this module type
@@ -926,36 +846,11 @@ This module has these optional dependencies:
 
  File::Find::Rule
  Test::Pod (0.95 or higher)
+ Test::Signature
 
 These are both just requried for testing purposes.
 
 Also required, a CSS stylesheet for the tabs markup
-
-=head1 LIMITATIONS AND EXTENSIBILITY
-
-This fast and easy to use mechanism has it's downside nonetheless. For
-instance the URL is always a self referencing URL. Also future extensions
---like support for thumbnail images-- is almost impossible. To allow for this
-extensibility headings can be defined in OO fashion. The OO statements to
-produce the headings would be something like:
-
-    my $tab = CGI::Widget::Tabs->new;
-    foreach $ht ( qw/Planes Trains Classics Bikes/ ) {
-        $h = $tab->heading();  # create and add a heading object
-        $h->text($ht);         # display $ht as heading text
-    }
-    $tab->wrap(3);
-
-
-Here the text() method makes the heading object display the text given by
-$ht. Look at the heading() method elsewhere in this document to see which
-other methods are available to define the properties and behaviour of OO
-headings. Did you see that in both accounts the indent() method was not used?
-That is because indentation is automatic. You get that for free. Actually,
-you must explicitely turn if off if you don't want it! Note that you can not
-mix simple headings with OO headings. If you already defined simple headings
-you can't go adding OO headings or vice versa. You need to stick with one
-type.
 
 =head1 TODO
 
@@ -985,7 +880,7 @@ Consider using Test::More in 003_main.t
 
 =item *
 
-Consider moving docs for Headings class into that class
+Pod::Coverage test
 
 =back
 

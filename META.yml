@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: CGI-Widget-Tabs
-version: 1.08
+version: 1.09
 license: perl
 distribution_type: module
 requires:
@@ -14,7 +14,7 @@ conflicts: {}
 provides:
   CGI::Widget::Tabs:
     file: lib/CGI/Widget/Tabs.pm
-    version: 1.08
+    version: 1.09
   CGI::Widget::Tabs::Heading:
     file: lib/CGI/Widget/Tabs/Heading.pm
 generated_by: Module::Build version 0.20
