@@ -8,19 +8,20 @@ CGI::Widget::Tabs - Create tab widgets in HTML
     my $tab = CGI::Widget::Tabs->new;
 
     use CGI;
-    my $cgi = CGI->new;          # interface to the query params
+    my $cgi = CGI->new;            # interface to the query params
 
-    $tab->headings(@titles);     # e.g. qw/Drivers Cars Courses/
-    $tab->default("Courses");    # the default active tab
-    $tab->active;                # the currently active tab
-    $tab->class("my_tab");       # the CSS class to use for markup
-    $tab->cgi_object($cgi);      # the object holding the query params
-    $tab->cgi_param("t");        # the CGI query parameter to use
-    $tab->drop_params("ays");    # do NOT pass on "Are You Sure?" answers
-    $tab->wrap(4);               # wrap after 4 headings...
-    $tab->indent(1);             # ...and add indentation
-    $tab->render;                # the resulting HTML code
-    $tab->display;               # same as `print $tab->render'
+    $tab->headings(@titles);       # e.g. qw/Drivers Cars Courses/
+    $tab->default("Courses");      # the default active tab
+    $tab->force_active("Courses"); # forceably make this the active tab
+    $tab->active;                  # the currently active tab
+    $tab->class("my_tab");         # the CSS class to use for markup
+    $tab->cgi_object($cgi);        # the object holding the query params
+    $tab->cgi_param("t");          # the CGI query parameter to use
+    $tab->drop_params("ays");      # do NOT pass on "Are You Sure?" answers
+    $tab->wrap(4);                 # wrap after 4 headings...
+    $tab->indent(1);               # ...and add indentation
+    $tab->render;                  # the resulting HTML code
+    $tab->display;                 # same as `print $tab->render'
 
 
     $h = $tab->heading;               # new OO heading for this tab
@@ -138,7 +139,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.10";
+$VERSION = "1.11";
 
 
 
@@ -170,9 +171,9 @@ sub new {
  active()
 
 Returns a string indicating the current active tab heading. This is (in order of
-precedence) the  heading being clicked on, the  default heading, or the first in
-the list. The string value will either  be the heading key  or the heading text,
-depending on if you chose to use keys. Example:
+precedence) the heading set by force_active(), the heading being clicked on, the
+default heading, or the first in  the list. The string  value will either be the
+heading key or the heading text, depending on if you chose to use keys. Example:
 
     if ( $tab->active() eq "Trains" ) {  # heading text only
 
@@ -184,22 +185,28 @@ sub active {
 
     #
     # Returns the active heading. In order of precendence:
-    # 1. The heading clicked by the user
-    # 2. The default heading
-    # 3. The first heading in the list
+    # 1. A mandatory heading
+    # 2. The heading clicked by the user
+    # 3. The default heading
+    # 4. The first heading in the list
     #
     my $self = shift;
     my $active;
 
     # 1. Heading clicked
+    # 1. Mandatory heading
+    $active = $self->force_active();
+    return $active if defined $active;
+
+    # 2. Heading clicked
     $active = $self->cgi_object->param($self->cgi_param);
     return $active if defined $active;
 
-    # 2. Default
+    # 3. Default
     $active = $self->default;
     return $active if defined $active;
 
-    # 3. First
+    # 4. First
     my $h = ($self->headings)[0];  # headings are always OO objects
     return $h->key || $h->text;
 }
@@ -425,6 +432,40 @@ sub display {
     my $self = shift;
     print $self->render;
 }
+
+
+
+=head3 force_active
+
+ force_active(STRING)
+
+Forces the activation of a specific tab identified by it's heading text
+or key. This is useful if you have an application which must show a
+certain tab after doing someting. Or if you're paranoid and you've been
+given a CGI query string which you don't trust. In both cases you can
+make sure the tab of your preference is activated. Example:
+
+    $tab->force_active("Trains");  # heading text only
+
+    $tab->force_active("-t");      # key
+
+    $tab->force_active(undef);     # forget all about it
+
+
+=cut
+
+sub force_active {
+
+    #
+    # Activates a heading. Takes heading text, key or undef.
+    #
+    my $self = shift;
+    if ( @_ ) {
+        $self->{force_active} = shift;
+    }
+    return $self->{force_active};
+}
+
 
 
 =head3 heading
@@ -863,6 +904,11 @@ move up on my priority list.
 
 =item *
 
+Re work the way Headings work. Do not assume that a  heading wants to be wrapped
+into an a href tag. It might be javascript instead
+
+=item *
+
 Provide a hash  lookup as a  replacement mechanism for  $cgi->params() for those
 who don't use CGI or CGI::Minimal
 
@@ -888,15 +934,11 @@ Patches always welcome.
 As a side effect, the CGI query parameter to identify the tab (see the
 cgi_param() method) is always moved to the end of the query string.
 
-To report a bug or request an enhancement use CPAN's excellent Request Tracker,
-either via the web:
+To report a bug  or request an enhancement  DO NOT use CPAN's  excellent Request
+Tracker. As it currently does not support passing ownership  of a bug queue when
+someone else takes over a module (I'm not the original author of this module)
 
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=CGI-Widget-Tabs>
-
-or via email:
-
-bug-cgi-widget-tabs@rt.cpan.org
-
+Please email me: sagarshah AT softhome.net
 
 =head1 CONTRIBUTIONS
 

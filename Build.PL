@@ -4,10 +4,13 @@ use Module::Build;
 Module::Build->new(
 		   license     => 'perl',
 		   module_name => 'CGI::Widget::Tabs',
+		   build_requires => {
+				      'Test::Distribution'  => 1.14,
+				      'Test::More'	    => 0,
+				     },
 		   requires    => {
 				   'Carp'          => 0,
 				   'HTML::Entities'=> 0,
-				   'Test::More'	   => 0,
 				   'URI::Escape'   => 0,
 				  },
 		   sign        => 1,

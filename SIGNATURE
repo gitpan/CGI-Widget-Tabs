@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.35.
+signed via the Module::Signature module, version 0.38.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,23 +14,21 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 0ed53f19e2444b1c6a09bdab7baf06cb70a7c1f3 Build.PL
-SHA1 667ccf2926b5cd71322e02966f7a6f9438adc031 Changes
-SHA1 2690832c4cbbaef6d45f07dab3b5d52848e51bd9 MANIFEST
-SHA1 9dc28ac21b256e753e4fb49311b355b56f57ac85 META.yml
+SHA1 41eef3eaa5e709f6c9492be966a498f5813fa7df Build.PL
+SHA1 021c0044a89506c75489a59466c17134cf4db261 Changes
+SHA1 10100a92a1f55b227c0a900c191a250bd34cb86c MANIFEST
 SHA1 e86245b6a930636e230cc7607c02cdabe7d1e2fc Makefile.PL
-SHA1 2c39f0e0ac2746a58ea608d33ad61e6e82fee253 README
-SHA1 88fcc67c0d3ecdea56213ca5829aaccc3ac4ced2 lib/CGI/Widget/Tabs.pm
-SHA1 ff62d35410eb28646ac1fcdffe9f9f742702d1fc lib/CGI/Widget/Tabs/Heading.pm
-SHA1 bbe7885a0f0012a2770c26d730dcd89f52b3bafb lib/CGI/Widget/Tabs/Style.pm
-SHA1 0aecb17b96b36610d08c9054a93aa24400a19438 t/001_signature.t
-SHA1 8f509bd894b832dc36db5e1b08a35035ccfa6010 t/002_pod.t
-SHA1 df7823f670f26ff203adba46be5f3be9a702c96a t/003_main.t
+SHA1 942b107ae3ba0810ffecab65fe6a93fb777025a0 README
+SHA1 90797a31ab9222f61139a591f41d3604bf9820bf lib/CGI/Widget/Tabs.pm
+SHA1 c43a16c3b1e683335256d8c17e58ef2c11334ac8 lib/CGI/Widget/Tabs/Heading.pm
+SHA1 54d2b4b557d577ab93cb0df0ebb8311cc6fcc460 lib/CGI/Widget/Tabs/Style.pm
+SHA1 01c3db36930081fa66154985efc56d8835c7c14c t/01_distribution.t
+SHA1 d1629997231ab7001f2f220628cf4808fb35068d t/02_main.t
 SHA1 b522529a0b6e3d68d78cf5e288ab9523960735be tabs-demo.pl
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/o8O1bD1fM9M5ytIRAgDGAJ9u62/OhN4Xu4tkwFeWcYQuXqz7SgCcDaa+
-D4rIOUI3X7B7nDJdKvBFyA4=
-=XYHh
+iD8DBQFAYy3jbD1fM9M5ytIRAqsgAKCOYoI8xbgKYCA6OWJzEQOpi4id9ACdFZU3
+0BZhQoDhGXGXaCvoPOxx8CQ=
+=MAbH
 -----END PGP SIGNATURE-----

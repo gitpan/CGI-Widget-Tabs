@@ -1,4 +1,4 @@
-# $Id: 003_main.t,v 1.7 2002/11/09 14:22:24 koos Exp $
+# $Id: 02_main.t,v 1.7 2002/11/09 14:22:24 koos Exp $
 use strict;
 use Test;
 use CGI::Widget::Tabs;

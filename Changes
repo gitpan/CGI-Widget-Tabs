@@ -1,3 +1,6 @@
+1.11	- Add Test::Distribution Tests replacing individual sig+pod tests
+	- Added force_active feature (patch from Koos Pol)
+
 1.10	- Added Pod::Coverage tests into 002_pod.t
 	- Corrected version numbers in Changes file
 	- Correctd Pod error in CGI::Widget::Tabs::Headings

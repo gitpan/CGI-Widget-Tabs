@@ -1,3 +1,8 @@
+package CGI::Widget::Tabs::Style;
+
+use vars qw/$VERSION/;
+
+$VERSION = "1.00";
 
 sub css_styles {
 

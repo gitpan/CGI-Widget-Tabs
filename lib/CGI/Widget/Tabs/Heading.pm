@@ -25,10 +25,11 @@ package CGI::Widget::Tabs::Heading;
 
 # pragmata
 use strict;
-
+use vars qw/$VERSION/;
 # Standard Perl Library and CPAN modules
 use HTML::Entities;
 
+$VERSION = "1.00";
 
 =head3 new
 
