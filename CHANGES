@@ -1,0 +1,37 @@
+1.0  (2002-07-09)
+-----------------------------
+First release
+
+
+1.1 (2002-08-07)
+-----------------------------
+The leading minus sign in key/value lists is now propagated to
+the query params in the URL. The reason is that you would get
+bitten if you wanted to access the CGI tabs parameter directly
+through the CGI object in stead of through the CGI::Tabs object.
+The missing '-' would be a fall over. If you are not accessing
+the tabs parameter outside the CGI::Tabs object, you are not
+affected.
+
+The space between tabs now has it's own CSS class
+
+demo.pl has been renamed to tabs-demo.pl to avoid future
+conflicts.
+
+
+1.2 (2002-08-16)
+-----------------------------
+- CGI::Tabs has adopted the namespace CGI::Widget::Tabs. To
+  create a new tab object, now issue the statements:
+      use CGI::Widget::Tabs;
+      $tab = CGI::Widget::Tabs->new();
+
+- Added the ->render() method (suggestions from
+  Bodo Eing <eingb@uni-muenster.de>)
+
+- Minor documentation changes
+
+- Made it's first public appearance on CPAN
+  (http://cpan.perl.org)
+
+
