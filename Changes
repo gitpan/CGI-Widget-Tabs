@@ -1,3 +1,14 @@
+1.0.8 	- New Maintainer/Owner: Sagar R. Shah
+     	- Moved from ExtUtils::MakeMaker to Module::Build for building
+      	- Added optional Test::Pod and Test::Signature tests
+  	- Reorganised files to newer style layout with lib and t subdirs
+	- Removed INSTALL, TODO and  COPYRIGHT files ... see README or pod docs
+	- Unified README and pod docs
+        - Revealed hidden piece of docs in a 'Limitations and Extensibility'
+	  section
+        - Pod docs in Tabs.pm are a more literate style. Methods ordered
+ 	  alphabetically, internals method documented.
+
 1.07  (2003-04-27)
 ------------------
     - Removed the distinction between simple headings and OO headings.

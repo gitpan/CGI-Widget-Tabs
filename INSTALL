@@ -1,6 +1,0 @@
-To install CGI::Widget::Tabs type the following:
-
-perl Makefile.PL
-make
-make test
-make install
