@@ -1,3 +1,11 @@
+1.06.01 (2003-01-26)
+--------------------
+This is a maintenance release.
+    - Fixed: forgot the replace my private "require" with "use"
+    - Some code rearrangements.
+
+
+
 1.06 (2003-01-16)
 -----------------
     - Minor interface change as promised in the 1.05 release:

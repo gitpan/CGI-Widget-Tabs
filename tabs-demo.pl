@@ -1,9 +1,10 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 #!/usr/bin/speedy
 
-# $Id: tabs-demo.pl,v 1.18 2003/01/16 21:25:35 koos Exp $
+# $Id: tabs-demo.pl,v 1.19 2003/01/26 17:31:47 koos Exp $
 
 use strict;
+
 use CGI::Widget::Tabs;
 use CGI::Widget::Tabs::Style;
 

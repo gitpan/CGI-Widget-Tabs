@@ -1,4 +1,4 @@
-# $Id: Heading.pm,v 1.4 2003/01/16 21:25:35 koos Exp $
+# $Id: Heading.pm,v 1.5 2003/01/26 17:31:20 koos Exp $
 
 use strict;
 use HTML::Entities;
@@ -92,6 +92,16 @@ __END__
 =head1 NAME
 
 CGI::Widget::Tabs::Heading - Create OO tab headings for CGI::Widget::Tabs objects
+
+
+
+=head1 SYNOPSIS
+
+None.
+
+
+
+=head1 DESCRIPTION
 
 This module is designed to work with CGI::Widget::Tabs. You can not use this module
 in a standalone fashion. Look at the CGI::Widget::Tabs documentation for more info.

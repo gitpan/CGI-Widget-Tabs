@@ -1,15 +1,16 @@
-# $Id: Tabs.pm,v 1.28 2003/01/16 21:25:35 koos Exp $
+# $Id: Tabs.pm,v 1.29 2003/01/26 17:30:51 koos Exp $
 
 package CGI::Widget::Tabs;
 
 use strict;
 use Carp;
-# use CGI::Widget::Tabs::Heading;
-require "Tabs/Heading.pm";
+use CGI::Widget::Tabs::Heading;
 use URI::Escape();
 use HTML::Entities();
 
-our $VERSION = '1.06';
+use vars qw/$VERSION/;
+
+$VERSION = '1.06.01';
 
 
 
@@ -216,8 +217,18 @@ sub render {
     my $spacer      = '<td class="'.$class.'_spc"><img height="1" width="1"></td>';  # dummy image
     my $indentation = '<td class="'.$class.'_ind"><img height="1" width="1"></td>'."\n";  # dummy image
     my @html;
-    my $all_query_params_but_one = _all_query_params_but_one($cgi, $cgi_param);
     my $url;
+    my $query_string_min_min;  # the query string minus the varying tab
+
+    # - reproduce the CGI query string EXCEPT the varying tab
+    my @param_list = grep( $_ ne $cgi_param,$cgi->param() );
+    if ( @param_list ) {
+        $query_string_min_min = join "&", map ( "$_=".URI::Escape::uri_escape($cgi->param($_)||"") ,  @param_list );
+        $query_string_min_min .= "&";
+    } else {
+        $query_string_min_min = "";
+    }
+
 
     if ( @headings ) {
 
@@ -240,8 +251,9 @@ sub render {
                 push @html, '<td class="',$class;
                 push @html, '_actv' if $param_value eq $active;
                 push @html, '">';
-                my $url = $heading->url || ( '?'.$all_query_params_but_one.$cgi_param.'='.URI::Escape::uri_escape($param_value) );
-                push @html, &_link( $heading->text , $url );
+                # cooked default URL or default self ref.
+                my $url = $heading->url || ( "?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($param_value) );
+                push @html, _link( $heading->text , $url );
                 push @html, "</td>";
                 push @html, $spacer,"\n";
                 # -- end of row
@@ -281,7 +293,7 @@ sub render {
                     push @html, '<td class="',$class;
                     push @html, '_actv' if $heading_key eq $active;
                     push @html, '">';
-                    push @html, &_link($heading_text,'?'.$all_query_params_but_one.$cgi_param.'='.URI::Escape::uri_escape($heading_key));
+                    push @html, _link($heading_text,"?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($heading_key));
                     push @html, "</td>";
                     push @html, $spacer,"\n";
 
@@ -315,7 +327,7 @@ sub render {
                     push @html, '<td class="',$class;
                     push @html, '_actv' if $heading eq $active;
                     push @html, '">';
-                    push @html, &_link($heading,'?'.$all_query_params_but_one.$cgi_param.'='.URI::Escape::uri_escape($heading));
+                    push @html, _link($heading,"?$query_string_min_min$cgi_param=".URI::Escape::uri_escape($heading));
                     push @html, "</td>";
                     push @html, $spacer,"\n";
 
@@ -372,23 +384,12 @@ sub _link {
 
 
 
-# ----------------------------------------------
-sub _all_query_params_but_one {
-# ----------------------------------------------
-    # reproduce the URL incl all CGI params, _except_ the varying tab
-    my ( $cgi, $cgi_param ) = @_;
-
-    my $all_query_params_but_one = "";
-    foreach ( $cgi->param() ) {
-        next if $_ eq $cgi_param;
-        $all_query_params_but_one .= $_.'='.URI::Escape::uri_escape($cgi->param($_)||"").'&';
-    }
-    return $all_query_params_but_one;
-}
-
 1;
 
 __END__
+
+
+
 
 =head1 NAME
 
@@ -416,7 +417,7 @@ CGI::Widget::Tabs - Create tab widgets in HTML
 
     $h = $tab->heading;               # new OO heading for this tab
     $h->text("TV Listings");          # heading text
-    $h->raw(1);                       # heading text will not be encoded
+    $h->raw(1);                       # switch off HTML encoding
     $h->key("tv");                    # key identifying this heading
     $h->url("whatsontonight.com");    # redirect URL for this heading
 

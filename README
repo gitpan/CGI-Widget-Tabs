@@ -93,18 +93,11 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.06 (2003-01-16)
------------------
-    - Minor interface change as promised in the 1.05 release:
-      $h->raw_text(STRING) has been superseded by
-      $h->raw(BOOLEAN). For a background of the reason, see the
-      BUGS section in the documentation of the 1.05 release. For
-      the current workings, see the documentation in this release
-      for the methods $h->text() and $h->raw().
-
-    - Dropped the "use warnings" to support Perl <= 5.005.
-      But CGI::Widget::Tabs pretends to be warning free all
-      together.
+1.06.01 (2003-01-26)
+--------------------
+This is a maintenance release.
+    - Fixed: forgot the replace my private "require" with "use"
+    - Some code rearrangements.
 
 
-$Id: README,v 1.17 2003/01/16 21:25:35 koos Exp $
+$Id: README,v 1.18 2003/01/26 17:31:47 koos Exp $
