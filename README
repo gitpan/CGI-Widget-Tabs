@@ -15,21 +15,28 @@ approach:
 link / yet another page), but keep it all together: The single
 point of entry paradigm.
 
-2. For the Perl hacker to generate and display multiple data
-sources within the same script environment.
+2. As a consequence the end user deals with a more consistent and
+integrated GUI. This will give a better "situational awareness"
+within the application.
 
+3. For the Perl hacker to handle multiple related data sources
+within the same script environment.
 
 As an example the following tabs could be used on a web page for
 someone's spotting hobby:
 
-      ________      ________      _____________
-     / Planes \    / Trains \    / Automobiles \
------------------------------------------------------
+      __________      __________      __________
+     /  Planes  \    /  Trains  \    / Classics \
+------------------------------------------------------
+         _________
+        /  Bikes  \
+------------------------
 
-The nice thing about CGI::Widget::Tabs is that the tabs know
-their internal state. So you can ask a tab for instance which tab
-heading has been clicked by the user. This way you get instant
-feedback.
+As you can see, the headings wrap at three and a small
+indentation is added to the start of the next row. The nice thing
+about CGI::Widget::Tabs is that the tabs know their internal
+state. So you can ask a tab for instance which heading has been
+clicked by the user. This way you get instant feedback.
 
 
 
@@ -54,12 +61,8 @@ DEPENDENCIES
 
 INSTALLATION
 
-To install this module type the following:
-
-perl Makefile.PL
-make
-make test
-make install
+This distribution has relocated a file. Read INSTALL for details
+on how to install this distribution.
 
 
 
@@ -85,9 +88,11 @@ CHANGES
 These changes are against the previous version.  For a complete
 history log, see the file 'CHANGES' in the distribution.
 
-1.04 (2002-11-23)
---------------------
-    - Added CSS example style sheets to the demo script.
+1.05 (2002-12-02)
+-----------------
+    - Added wrapping and indentation functionality.
+    - Minor documentation changes.
+    - Relocated file Styles.pm. Read INSTALL for details.
 
 
-$Id: README,v 1.14 2002/11/23 09:52:48 koos Exp $
+$Id: README,v 1.15 2002/12/02 20:19:37 koos Exp $

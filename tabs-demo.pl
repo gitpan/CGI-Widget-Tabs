@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 #!/usr/bin/speedy
 
-# $Id: tabs-demo.pl,v 1.15 2002/11/23 10:21:32 koos Exp $
+# $Id: tabs-demo.pl,v 1.17 2002/12/02 20:19:37 koos Exp $
 
 use strict;
 use warnings;
 use CGI::Widget::Tabs;
-use Styles;
+use CGI::Widget::Tabs::Style;
 
 my @styles = css_styles();
 my $cgi = create_cgi_object();
@@ -19,14 +19,13 @@ Content-Type: text/html;
 
 <head>
 <title>CGI::Widget::Tabs - Demo</title>
-<!-- Style designed by $styles[$style_nr]->{author} -->
 <style type="text/css">
 EOT
 print $styles[$style_nr]->{style};
 print <<EOT;
 </style>
 </head>
-<body><center>
+<body>
 <h1>F1 - Team Simulation - 2002</h1>
 EOT
 
@@ -38,6 +37,8 @@ $main_tab->headings( "Drivers", "Courses", "Cars", "Style sheets" ); # |The head
                                                  # |This means the actual words
                                                  # |are used in the URL.
 $main_tab->class("my_tab");  # CSS base style to use
+
+print "<p>This is the main tab</p>\n";
 $main_tab->display;  # paint the tab
 
 print "<br>";  # I could probably use some CSS bottom margin too.
@@ -145,6 +146,8 @@ EOT
 
 # run the selected details tab
 if ( $main_tab->active ne "Style sheets" ) {
+    print "<p>These are the details tabs.</p>\n";
+    $details->wrap(4);   # after 4 headings we wrap to the next row
     $details->display ;  # there is no details for this one
 
     print "<br>We now should run some intelligent code ";
@@ -158,7 +161,7 @@ value &quot;-ms;&quot;</font>
 EOT
     }
 }
-print "</center>\n</body>\n</html>";
+print "</body>\n</html>";
 
 
 

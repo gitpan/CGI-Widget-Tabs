@@ -1,10 +1,12 @@
-$Id: TODO,v 1.5 2002/11/09 14:12:05 koos Exp $
 
 WISH LIST
 
 - Provide a hash lookup as a replacement mechanism for
   $cgi->params() for those who don't use CGI or CGI::Minimal
-- Wrap tabs to the next line if they exceed a user defined number.
 
 
 Patches welcome.
+
+
+
+$Id: TODO,v 1.7 2002/12/02 20:22:43 koos Exp $

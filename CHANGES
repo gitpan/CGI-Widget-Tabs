@@ -1,3 +1,11 @@
+1.05 (2002-12-02)
+-----------------
+    - Added wrapping and indentation functionality.
+    - Minor documentation changes.
+    - Relocated file Styles.pm. Read INSTALL for details.
+
+
+
 1.04 (2002-11-23)
 --------------------
     - Added CSS example style sheets to the demo script.

@@ -4,9 +4,9 @@ INSTALL
 MANIFEST
 Makefile.PL
 README
-Styles.pm
 TODO
 Tabs.pm
 Tabs/Heading.pm
+Tabs/Style.pm
 tabs-demo.pl
 test.pl
