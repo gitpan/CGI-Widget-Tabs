@@ -1,16 +1,15 @@
-# $Id: Tabs.pm,v 1.27 2002/12/02 20:19:37 koos Exp $
+# $Id: Tabs.pm,v 1.28 2003/01/16 21:25:35 koos Exp $
 
 package CGI::Widget::Tabs;
 
-use 5.006;
 use strict;
-use warnings;
 use Carp;
-use CGI::Widget::Tabs::Heading;
+# use CGI::Widget::Tabs::Heading;
+require "Tabs/Heading.pm";
 use URI::Escape();
 use HTML::Entities();
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 
 
@@ -21,6 +20,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self = {};
     bless ($self, $class);
+    $self->indent(1);
     return $self;
 }
 
@@ -134,7 +134,7 @@ sub active {
     return $self->default if defined $self->default;  # that was again very easy
     # 3. First
     my $first_heading = ($self->headings)[0];
-    return $first_heading->key || $first_heading->raw_text || $first_heading->text;
+    return $first_heading->key || $first_heading->text;
 }
 
 
@@ -175,21 +175,14 @@ sub indent {
 # ----------------------------------------------
     #
     # Indentation after wrapping to next line?
-    # Evaluates to 1 or 0;
     #
     my $self = shift;
     my $arg = shift;
-    my $indent = 1;  # defaults to 1
 
     if ( defined $arg ) {
-        # set
-        $indent = 0 if !$arg;
-    } else {
-        # get
-        $indent = 0 if defined $self->{indent} && !$self->{indent};
+        $self->{indent} =  $arg ? 1 : 0;
     }
-    $self->{indent} = $indent;
-    return $indent;
+    return $self->{indent};
 }
 
 
@@ -243,12 +236,12 @@ sub render {
                 }
 
                 # -- actual headings
-                $param_value = $heading->key || $heading->raw_text || $heading->text;
+                $param_value = $heading->key || $heading->text;
                 push @html, '<td class="',$class;
                 push @html, '_actv' if $param_value eq $active;
                 push @html, '">';
                 my $url = $heading->url || ( '?'.$all_query_params_but_one.$cgi_param.'='.URI::Escape::uri_escape($param_value) );
-                push @html, &_link( ( $heading->raw_text || HTML::Entities::encode_entities($heading->text) ) , $url );
+                push @html, &_link( $heading->text , $url );
                 push @html, "</td>";
                 push @html, $spacer,"\n";
                 # -- end of row
@@ -422,8 +415,8 @@ CGI::Widget::Tabs - Create tab widgets in HTML
 
 
     $h = $tab->heading;               # new OO heading for this tab
-    $h->text("TV Listings");          # heading text. HTML escaped
-    $h->raw_text("TV&nbsp;Listings"); # similar. But passed as is
+    $h->text("TV Listings");          # heading text
+    $h->raw(1);                       # heading text will not be encoded
     $h->key("tv");                    # key identifying this heading
     $h->url("whatsontonight.com");    # redirect URL for this heading
 
@@ -547,8 +540,8 @@ Example:
 
 Note how it does not matter if you configured simple headings or OO headings.
 Whichever you have chosen, active() will return the proper value: a value
-from the headings() method if you have configured simple headings or a value of
-one of the text(), raw_text() or key() methods if you have configured OO
+from the headings() method if you have configured simple headings, or a value of
+one of the text() or key() methods if you have configured OO
 headings.
 
 
@@ -638,8 +631,8 @@ then the elements look like:
 
 If you don't wrap headings, then ofcourse you won't need to specify the
 indentation td's. By the way, the indentation will usually look most natural
-if it has the same width as the spacers or a multiple. Look at the example in
-the EXAMPLE section to see how this all works out.
+if it has the same width as the spacers or a multiple thereof. Look at the
+example in the EXAMPLE section to see how this all works out.
 
 
 
@@ -651,14 +644,14 @@ to the next row after NUMBER headings. By default headings are not wrapped.
 
 
 
-=item B<indent(LVAL)>
+=item B<indent(BOOLEAN)>
 
 Sets/retrieves the indentation setting. Without arguments the current setting
-is returned. indent() specifies if indentation should be added to the
-next row if the headings get wrapped. By default indent() is set to
-TRUE. You must explicitaly switch off indentation for the desired effect.
-indent() is a toggle. The optional argument LVAL can be any argument
-evaluating to a logical value.
+is returned. indent() specifies if indentation should be added to the next
+row when the headings get wrapped. indent() is a toggle. By default indent() is
+set to TRUE. You must explicitaly switch off indentation for the desired
+effect. The optional argument BOOLEAN can be any argument evaluating to a
+logical value.
 
 The purpose of swithing off indentation is to simulate a vertical menu. In
 the spotting example, running
@@ -718,8 +711,8 @@ document to see how you can influence the markup of the tab widget. Example:
 =head1 METHODS FOR SIMPLE HEADINGS
 
 These methods define the properties of simple headings. As the simple
-headings are indeed very simple the wording "headings" doesn't fit. There is
-actually only one method :-)
+headings are indeed very simple the wording "methods" isn't really accurate:
+you only need one :-)
 
 
 =over 4
@@ -758,7 +751,7 @@ Example:
 
 
 Keys in a k/v list are not at all magical. You can choose any string you like
-with the provision that it starts with the '-' (minus) sign. The starting '-'
+with the provision that it starts with the '-' (hyphen) sign. The starting '-'
 of the list entries are what triggers CGI::Widget::Tabs to decide this list
 is a k/v list. So don't go and use plain list entries with a starting '-'.
 That won't work.
@@ -792,8 +785,9 @@ methods:
 =item B<text(STRING)>
 
 Sets/retrieves the heading text for the OO heading. If the optional argument
-STRING is given, the text will be set otherwise it will be retrieved.
-On actual display STRING will be HTML escaped. Examples:
+STRING is given, the text will be set otherwise it will be retrieved. The
+heading text will be HTML encoded unless explicitely told otherwise (see: raw()).
+Examples:
 
     # set heading text
     $h1->text("Names A > L");
@@ -804,19 +798,29 @@ On actual display STRING will be HTML escaped. Examples:
 
 
 
-=item B<raw_text(STRING)>
+=item B<raw(BOOLEAN)>
 
-Sets/retrieves the heading text for the OO heading. If the optionals argument
-STRING is given, the text will be set otherwise it will be retrieved. On
-actual display STRING will not be HTML escaped but passed as is. This is
-useful if you have some HTML preformatted text to display. Example:
+The heading text will normally be HTML encoded. You can pass those funny
+characters and the heading object will make sure it is displayed properly by
+encoding them into HTML. If you wish you can pass hardcoded HTML. To avoid
+escaping this HTML, you need to set raw() to a logical TRUE. This
+is usually a 1 (one). Setting it to FALSE (usually a 0) will re-enable HTML
+encoding. The optional argument BOOLEAN can be any argument evaluating to a
+logical value. Examples:
 
-    # set heading text
-    $h1->raw_text("Names&nbsp;A&nbsp;&gt;&nbsp;L");
-    $h2->raw_text("Names&nbsp;M&nbsp;&lt;&nbsp;Z");
+    # HTML encoded
+    $h1->text("Names A > L");
+    $h2->text("Names M < Z");
 
-    # text of the 4th heading
-    my $text = ($tab->headings)[3]->raw_text;
+    # Raw
+    $h1->text("Names A &gt; L");
+    $h1->raw(1);
+
+    $h2->text("Names M &lt; Z");
+    $h2->raw(1);
+
+    # get the encoding setting of the fourth element
+    my $raw = ($tab->headings)[3]->raw;
 
 
 
@@ -928,12 +932,6 @@ tabs-demo.pl in the CGI::Widget::Tabs installation directory.)
 As a side effect, the CGI query parameter to identify the tab (see the
 cgi_param() method) is always moved to the end of the query string.
 
-With OO headings text() is completely isolated from raw_text(). They are
-both seperate properties. Consequently the value set with text() can not be
-overwritten with a value set with raw_text() or vice-versa. Neither can you
-retrieve the current heading text unless you B<know> which one of the two you
-used to set the heading text. text() and raw_text() should probably use the
-same container. This will be fixed in a future release.
 
 
 =head1 CONTRIBUTIONS

@@ -1,7 +1,6 @@
-# $Id: Heading.pm,v 1.3 2002/11/02 13:42:49 koos Exp $
+# $Id: Heading.pm,v 1.4 2003/01/16 21:25:35 koos Exp $
 
 use strict;
-use warnings;
 use HTML::Entities;
 
 package CGI::Widget::Tabs::Heading;
@@ -13,6 +12,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self = {};
     bless ($self, $class);
+    $self->raw(0);  # by default text is HTML escaped
     return $self;
 }
 
@@ -37,28 +37,37 @@ sub key {
 sub text {
 # ----------------------------------------------
     #
-    # The HTML unescaped text to display on the tab heading
+    # Text to be displayed
     #
     my $self = shift;
+    my $text;
+
     if ( @_ ) {
-        $self->{text} = HTML::Entities::encode_entities(shift);
+        $self->{text} = shift;
     }
-    return $self->{text};
+    if ( $self->raw ) {
+        $text = $self->{text};
+    } else {
+        $text = HTML::Entities::encode_entities( $self->{text} );
+    }
+    return $text;
 }
 
 
 
 # ----------------------------------------------
-sub raw_text {
+sub raw {
 # ----------------------------------------------
     #
-    # The HTML escaped text to display on the tab heading
+    # Raw or HTML escaped?
     #
     my $self = shift;
-    if ( @_ ) {
-        $self->{raw_text} = shift;
+    my $arg = shift;
+
+    if ( defined $arg ) {
+        $self->{raw} =  $arg ? 1 : 0;
     }
-    return $self->{raw_text};
+    return $self->{raw};
 }
 
 

@@ -1,19 +1,6 @@
-
-SPECIAL INSTALLATION INSTRUCTIONS
-
-This release of CGI::Widget::Tabs has relocated Styles.pm. This
-file is used by the demo script tabs-demo.pl. As such it is a
-non-critical file for production use. Nevertheless, it would be
-bad working ethics to leave obsolete files hanging around.
-
-The quickest way is to locate the file Styles.pm in your current
-CGI::Widget::Tabs installation directory and remove it. Then
-install version 1.05 per the usual installation instructions:
+To install CGI::Widget::Tabs type the following:
 
 perl Makefile.PL
 make
 make test
 make install
-
-Apologies for the inconvinience.
--KP

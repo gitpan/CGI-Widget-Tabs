@@ -4,9 +4,11 @@ WISH LIST
 - Provide a hash lookup as a replacement mechanism for
   $cgi->params() for those who don't use CGI or CGI::Minimal
 
+- Add support for heading images i.s.o. text
+
 
 Patches welcome.
 
 
 
-$Id: TODO,v 1.7 2002/12/02 20:22:43 koos Exp $
+$Id: TODO,v 1.8 2003/01/16 21:25:35 koos Exp $
