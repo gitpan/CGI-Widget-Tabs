@@ -1,12 +1,12 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.38.
+signed via the Module::Signature module, version 0.53.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
 
     % cpansign -v
 
-It would check each file's integrity, as well as the signature's
+It will check each file's integrity, as well as the signature's
 validity.  If "==> Signature verified OK! <==" is not displayed,
 the distribution may already have been compromised, and you should
 not run its Makefile.PL or Build.PL.
@@ -14,21 +14,22 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 41eef3eaa5e709f6c9492be966a498f5813fa7df Build.PL
-SHA1 021c0044a89506c75489a59466c17134cf4db261 Changes
-SHA1 10100a92a1f55b227c0a900c191a250bd34cb86c MANIFEST
+SHA1 af5fef16b65bb3e6d90c2322c2fd2f1e7a142104 Build.PL
+SHA1 d4fc489ede5c7922641c961ad3e47c79a2e058c3 Changes
+SHA1 a1999e47c75b710422475c13fe198154a4f5bd90 MANIFEST
+SHA1 866a0842ad0dc608127a03720195c41a65c0c93b META.yml
 SHA1 e86245b6a930636e230cc7607c02cdabe7d1e2fc Makefile.PL
-SHA1 942b107ae3ba0810ffecab65fe6a93fb777025a0 README
-SHA1 90797a31ab9222f61139a591f41d3604bf9820bf lib/CGI/Widget/Tabs.pm
+SHA1 3c0433535a793f4dbf445e33c69c7cb63c3b4383 README
+SHA1 0b4bc88425e22b7f92a5691b113448946d62391f lib/CGI/Widget/Tabs.pm
 SHA1 c43a16c3b1e683335256d8c17e58ef2c11334ac8 lib/CGI/Widget/Tabs/Heading.pm
-SHA1 54d2b4b557d577ab93cb0df0ebb8311cc6fcc460 lib/CGI/Widget/Tabs/Style.pm
+SHA1 2e2b98159590589e70d1493455d9fe14fb20c2d9 lib/CGI/Widget/Tabs/Style.pm
 SHA1 01c3db36930081fa66154985efc56d8835c7c14c t/01_distribution.t
 SHA1 d1629997231ab7001f2f220628cf4808fb35068d t/02_main.t
 SHA1 b522529a0b6e3d68d78cf5e288ab9523960735be tabs-demo.pl
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFAYy3jbD1fM9M5ytIRAqsgAKCOYoI8xbgKYCA6OWJzEQOpi4id9ACdFZU3
-0BZhQoDhGXGXaCvoPOxx8CQ=
-=MAbH
+iD8DBQFEVn0tbD1fM9M5ytIRAnBsAKDJ+cKVxH1HRasZZxeMUvZJPT9NcwCgtWKG
+ZaoMj8Vk7YJjnul0FYGPXVg=
+=FgNO
 -----END PGP SIGNATURE-----

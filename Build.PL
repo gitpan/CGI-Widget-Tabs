@@ -13,5 +13,7 @@ Module::Build->new(
 				   'HTML::Entities'=> 0,
 				   'URI::Escape'   => 0,
 				  },
+			 create_readme => 1,
 		   sign        => 1,
+       add_to_cleanup      => [ 'CGI-Widget-Tabs-*' ],
 		  )->create_build_script;

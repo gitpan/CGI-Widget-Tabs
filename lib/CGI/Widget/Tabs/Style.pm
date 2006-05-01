@@ -1,8 +1,33 @@
+=head1 NAME
+
+CGI::Widget::Tabs::Style - Stylesheets for CGI::Widget::Tabs
+
+
+=head1 SYNOPSIS
+
+None.
+
+
+=head1 DESCRIPTION
+
+This module is designed to work with CGI::Widget::Tabs. You can not use this module
+in a standalone fashion. Look at the CGI::Widget::Tabs documentation for more info.
+
+=cut
+
 package CGI::Widget::Tabs::Style;
 
 use vars qw/$VERSION/;
 
 $VERSION = "1.00";
+
+=head1 INTERNALS
+
+=head2 css_styles
+
+Returns CSS styles
+
+=cut
 
 sub css_styles {
 

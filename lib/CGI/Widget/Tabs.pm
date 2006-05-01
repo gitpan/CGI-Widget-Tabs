@@ -139,7 +139,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.11";
+$VERSION = "1.12";
 
 
 
@@ -934,11 +934,8 @@ Patches always welcome.
 As a side effect, the CGI query parameter to identify the tab (see the
 cgi_param() method) is always moved to the end of the query string.
 
-To report a bug  or request an enhancement  DO NOT use CPAN's  excellent Request
-Tracker. As it currently does not support passing ownership  of a bug queue when
-someone else takes over a module (I'm not the original author of this module)
-
-Please email me: sagarshah AT softhome.net
+To report a bug  or request an enhancement  use CPAN's  excellent Request
+Tracker. 
 
 =head1 CONTRIBUTIONS
 
