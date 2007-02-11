@@ -139,7 +139,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.12";
+$VERSION = "1.13";
 
 
 

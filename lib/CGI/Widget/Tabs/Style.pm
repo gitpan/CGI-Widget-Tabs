@@ -10,18 +10,26 @@ None.
 
 =head1 DESCRIPTION
 
-This module is designed to work with CGI::Widget::Tabs. You can not use this module
-in a standalone fashion. Look at the CGI::Widget::Tabs documentation for more info.
+This module is designed to work with CGI::Widget::Tabs. 
 
 =cut
 
 package CGI::Widget::Tabs::Style;
 
-use vars qw/$VERSION/;
+# pragmata
+use strict;
+use vars qw(@EXPORT @ISA $VERSION);
+
+# CPAN Modules
+use Exporter;
+
+# package variables
+@ISA = qw(Exporter);
+@EXPORT = qw(css_styles);
 
 $VERSION = "1.00";
 
-=head1 INTERNALS
+=head1 EXPORTED FUNCTIONS
 
 =head2 css_styles
 

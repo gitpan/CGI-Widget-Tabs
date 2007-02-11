@@ -21,6 +21,7 @@ SYNOPSIS
         $tab->render;                  # the resulting HTML code
         $tab->display;                 # same as `print $tab->render'
 
+
         $h = $tab->heading;               # new OO heading for this tab
         $h->text("TV Listings");          # heading text
         $h->key("tv");                    # key identifying this heading
@@ -306,7 +307,8 @@ PUBLIC INTERFACE
 
     An element of LIST can be any one of:
 
-    * a string. E.g.:
+    *   a string. E.g.:
+
             qw/Planes Trains Classics Bikes/
 
         This is the simplest initializer. In the spotting example the four
@@ -315,7 +317,8 @@ PUBLIC INTERFACE
         can be displayed and each heading gets it's own self referencing
         URL.
 
-    * a key/value pair. E.g.:
+    *   a key/value pair. E.g.:
+
             ( -p => "Planes",
               -t => "Trains",
               -c => "Classics,
@@ -334,7 +337,8 @@ PUBLIC INTERFACE
         triggers CGI::Widget::Tabs to decide this is a k/v entry. Single or
         dual character strings tend to be the most convenient keys.
 
-    * a hash
+    *   a hash
+
         This use of the headings() method will clutter up your code. The
         hash tries to mimic and encapsulate all OO accessor methods. If
         think you need an initializer hash, you probably want OO headings.

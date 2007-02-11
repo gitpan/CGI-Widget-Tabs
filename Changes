@@ -1,3 +1,6 @@
+1.13  - CGI::Widget::Tabs::Style now exports css_styles so that tabs-demo.pl
+        works correctly. (Many thanks to James Osborne for the spot)
+
 1.12	- Removed message asking users not to log bugs to rt.cpan.org
         as I do now seem to finally own the bugs queue for this module
 		  - Added POD to CGI::Widget::Tabs::Styles so Pod::Coverage tests

@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-#!/usr/bin/speedy -w
-
-# $Id: tabs-demo.pl,v 1.20 2003/04/25 20:28:12 koos Exp $
-
+# pragmata
+use lib qw(./lib);
 use strict;
+
 use CGI::Widget::Tabs;
 use CGI::Widget::Tabs::Style;
 
