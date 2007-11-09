@@ -1,3 +1,12 @@
+=head1 MODULE FOR SALE
+
+I am not planning to make any changes to this module as I have not had to use
+it in any projects of my own for the last couple of years. I am aware that
+others are using it.
+
+If anyone would like to to take over maintenance/development of this module
+pleas get in touch.
+
 =head1 NAME
 
 CGI::Widget::Tabs - Create tab widgets in HTML
@@ -139,7 +148,7 @@ use HTML::Entities();
 use CGI::Widget::Tabs::Heading;
 
 
-$VERSION = "1.13";
+$VERSION = "1.14";
 
 
 
@@ -957,6 +966,13 @@ release.
 
 =back
 
+=head1 SOURCE AVAILABILITY
+
+This source is part of a SourceForge project which always has the
+latest sources in svn.
+
+http://sourceforge.net/projects/sagar-r-shah/
+
 =head1 AUTHOR
 
 Koos Pol E<lt>koos_pol@raketnet.nlE<gt>
@@ -976,12 +992,9 @@ L<http://www.w3.org/TR/REC-CSS2>
 
 Copyright 2003, Koos Pol, All rights reserved
 
-Copyright 2003, Sagar R. Shah, All rights reserved
+Copyright 2003-2007, Sagar R. Shah, All rights reserved
 
 This program  is free software; you can  redistribute it  and/or modify it under
 the same terms as Perl itself.
-
-The full text of the license can be found in the LICENSE file included with this
-module.
 
 =cut

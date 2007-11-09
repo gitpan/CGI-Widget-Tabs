@@ -5,9 +5,9 @@ lib/CGI/Widget/Tabs/Heading.pm
 lib/CGI/Widget/Tabs/Style.pm
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 README
 t/01_distribution.t
 t/02_main.t
 tabs-demo.pl
+META.yml
 SIGNATURE    Added here by Module::Build

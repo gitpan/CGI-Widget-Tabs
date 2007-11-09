@@ -1,3 +1,5 @@
+1.14  - POD Updates
+
 1.13  - CGI::Widget::Tabs::Style now exports css_styles so that tabs-demo.pl
         works correctly. (Many thanks to James Osborne for the spot)
 
